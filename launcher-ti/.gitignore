@@ -1,0 +1,1 @@
+# exclui logs/, data/output/, data/temp/, .env, __pycache__
