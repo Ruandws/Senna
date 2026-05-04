@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=72", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "senna"
+version = "0.1.0"
+description = "Sistema de automações web para gestão de usuários em sistemas hospitalares"
+requires-python = ">=3.14"
+dependencies = [
+    "customtkinter==5.2.2",
+    "playwright==1.58",
+    "pandas==3.0.1",
+    "python-dotenv>=1.0",
+    "openpyxl>=3.1",
+]
+
+[project.scripts]
+senna = "senna.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["senna*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--strict-markers --tb=short"
+
+[tool.coverage.run]
+source = ["senna"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+fail_under = 80

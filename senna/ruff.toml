@@ -1,0 +1,24 @@
+# regras do linter isoladas do pyproject para fácil ajuste
+
+line-length = 88
+target-version = "py314"
+ 
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "ANN", # type annotations
+]
+ 
+ignore = [
+    "ANN101", # missing type annotation for `self`
+    "ANN102", # missing type annotation for `cls`
+]
+ 
+[lint.per-file-ignores]
+"tests/**/*.py" = ["ANN"] # testes não exigem anotação completa
+ 
+[format]
+quote-style = "double"
+indent-style = "space"

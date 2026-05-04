@@ -1,12 +1,12 @@
-# SPEC.MD — Especificação de Requisitos: Launcher TI
+# SPEC.MD — Especificação de Requisitos: Senna
 > Fonte da verdade do projeto. Toda decisão de arquitetura, escopo e implementação deve ser validada contra este documento.
 
 ---
 
 ## 1. Visão Geral
 
-O **Launcher TI** é uma aplicação desktop desenvolvida em Python que centraliza automações web voltadas à gestão de usuários em sistemas hospitalares. 
-O técnico de TI, ao receber um chamado, abre o Launcher, seleciona o sistema-alvo, escolhe o procedimento desejado, preenche os dados do formulário e dispara a automação. O Launcher executa o fluxo via Playwright em segundo plano e exibe o resultado na interface.
+O **Senna** é uma aplicação desktop desenvolvida em Python que centraliza automações web voltadas à gestão de usuários em sistemas hospitalares. 
+O técnico de TI, ao receber um chamado, abre o Senna, seleciona o sistema-alvo, escolhe o procedimento desejado, preenche os dados do formulário e dispara a automação. O Senna executa o fluxo via Playwright em segundo plano e exibe o resultado na interface.
 
 ---
 
@@ -15,8 +15,8 @@ O técnico de TI, ao receber um chamado, abre o Launcher, seleciona o sistema-al
 | # | Objetivo | Critério de Sucesso |
 |---|----------|---------------------|
 | O1 | Automatizar procedimentos repetitivos. | Execução de ponta a ponta sem intervenção manual |
-| O2 | Centralizar 5 sistemas na mesma interface | Todos os sistemas operáveis a partir do Launcher |
-| O4 | Permitir processamento em lote via planilha | Importação de XLSX validado pelo Launcher |
+| O2 | Centralizar 5 sistemas na mesma interface | Todos os sistemas operáveis a partir do Senna |
+| O4 | Permitir processamento em lote via planilha | Importação de XLSX validado pelo Senna |
 | O5 | Facilitar extensão para novos sistemas e procedimentos | Novo sistema = nova pasta com contratos já definidos |
 
 ---
@@ -25,7 +25,7 @@ O técnico de TI, ao receber um chamado, abre o Launcher, seleciona o sistema-al
 
 - **Técnico de TI**: usuário primário — executa procedimentos via interface.
 - **Coordenador de TI**: consulta logs de auditoria e relatórios de execução.
-- **Desenvolvedor**: estende o Launcher com novos sistemas e procedimentos.
+- **Desenvolvedor**: estende o Senna com novos sistemas e procedimentos.
 
 ---
 
@@ -45,7 +45,7 @@ O técnico de TI, ao receber um chamado, abre o Launcher, seleciona o sistema-al
 
 ## 5. Sistemas Suportados (Fase 1)
 
-Cada sistema é isolado em seu próprio subpacote dentro de `launcher/systems/`. Os nomes abaixo são placeholders até a definição oficial pela equipe:
+Cada sistema é isolado em seu próprio subpacote dentro de `senna/systems/`. Os nomes abaixo são placeholders até a definição oficial pela equipe:
 
 | ID | Nome do Pacote | Descrição |
 |----|---------------|-----------|
@@ -68,7 +68,7 @@ Os procedimentos abaixo aplicam-se a todos os sistemas que os suportem. Cada pro
 | P3 | Alterar data de expiração | matrícula, nova data |
 | P4 | Conceder/revogar perfil de acesso | matrícula, perfil, ação (grant/revoke) |
 
-> Nem todo sistema suportará todos os procedimentos. A disponibilidade é declarada no `AVAILABLE_SYSTEMS` de `launcher/systems/__init__.py`.
+> Nem todo sistema suportará todos os procedimentos. A disponibilidade é declarada no `AVAILABLE_SYSTEMS` de `senna/systems/__init__.py`.
 
 ---
 
@@ -86,17 +86,17 @@ Os procedimentos abaixo aplicam-se a todos os sistemas que os suportem. Cada pro
 - Mensagens de erro são exibidas inline, próximas ao campo inválido.
 
 ### RF-04 — Execução Individual
-- Após o usuário preencher o formulário e clicar em "Executar", o Launcher instancia o procedimento via `Orchestrator`, passa o payload e aguarda o `Result` o qual é exibido na interface.
+- Após o usuário preencher o formulário e clicar em "Executar", o Senna instancia o procedimento via `Orchestrator`, passa o payload e aguarda o `Result` o qual é exibido na interface.
 
 ### RF-05 — Execução em Lote
 - O usuáro importa um arquivo XLSX, que é validado em colunas obrigatórias pelo `DataLoader`.
-- O Launcher executa cada linha como uma execução individual sequencial.
+- O Senna executa cada linha como uma execução individual sequencial.
 - Um relatório consolidado é salvo em `data/output/`.
 
 ### RF-06 — Gerenciamento de Credenciais
 - As credenciais dos sistemas são lidas de variáveis de ambiente (`.env`).
 - Nunca são exibidas na interface ou gravadas em logs.
-- O Launcher alerta o técnico se uma credencial obrigatória estiver ausente ao inicializar.
+- O Senna alerta o técnico se uma credencial obrigatória estiver ausente ao inicializar.
 
 ### RF-08 — Sessão Isolada por Sistema
 - Cada sistema abre e gerencia seu próprio `BrowserContext` isolado via `BrowserFactory`.
@@ -200,8 +200,8 @@ Cada sistema possui `pages/` com classes que encapsulam ações de tela, e `loca
 ## 11. Estrutura de Diretórios (Referência)
 
 ```
-launcher-ti/
-├── launcher/
+senna/
+├── senna/
 │   ├── core/          # ABCs, Orchestrator, Models, Config, Logger, Result
 │   ├── interface/     # UI CustomTkinter + formulários dinâmicos
 │   ├── systems/
@@ -234,7 +234,7 @@ launcher-ti/
 ### Fase 0 — Fundação (Sprint 1)
 **Objetivo**: infraestrutura funcionando, zero lógica de negócio.
 
-- [ ] `0.1` Configurar `pyproject.toml`: dependências, entry point `launcher.main:main`, config pytest e Ruff.
+- [ ] `0.1` Configurar `pyproject.toml`: dependências, entry point `senna.main:main`, config pytest e Ruff.
 - [ ] `0.2` Configurar `ruff.toml` com regras E, F, I, ANN básicas.
 - [ ] `0.3` Implementar `core/config.py`: leitura de `.env` + `settings.toml` com valores padrão.
 - [ ] `0.4` Implementar `core/logger.py`: logger estruturado (JSON) + `audit_logger` separado.

@@ -1,4 +1,4 @@
-# 🚀 Launcher TI
+# 🚀 Senna
 
 <div align="center">
   <img alt="Python" src="https://img.shields.io/badge/Python-3.14-blue?style=for-the-badge&logo=python">
@@ -9,7 +9,7 @@
 
 <br>
 
-O **Launcher TI** é uma aplicação desktop desenvolvida em Python que centraliza automações web voltadas à gestão de usuários em sistemas hospitalares. Desenvolvido para facilitar a rotina dos técnicos de TI, ele permite executar procedimentos complexos e repetitivos de forma automatizada, segura e rastreável.
+O **Senna** é uma aplicação desktop desenvolvida em Python que centraliza automações web voltadas à gestão de usuários em sistemas hospitalares. Desenvolvido para facilitar a rotina dos técnicos de TI, ele permite executar procedimentos complexos e repetitivos de forma automatizada, segura e rastreável.
 
 ---
 
@@ -38,8 +38,8 @@ O **Launcher TI** é uma aplicação desktop desenvolvida em Python que centrali
 O projeto segue uma arquitetura modular baseada em subpacotes, isolando regras de negócio, interface e os sistemas-alvo:
 
 ```text
-launcher-ti/
-├── launcher/
+senna/
+├── senna/
 │   ├── core/          # Contratos (ABCs), Orchestrator, Models, Config, Result
 │   ├── interface/     # UI em CustomTkinter e formulários dinâmicos
 │   ├── systems/       # Implementação dos sistemas (servicos_ti, aghux, etc.)
@@ -64,7 +64,7 @@ launcher-ti/
 1. **Clone o repositório:**
    ```powershell
    git clone https://github.com/Ruandws/Senna.git
-   cd Senna/launcher-ti
+   cd Senna/senna
    ```
 
 2. **Crie e ative um ambiente virtual:**
@@ -85,7 +85,7 @@ launcher-ti/
 
 5. **Inicie a aplicação:**
    ```powershell
-   python -m launcher.main
+   python -m senna.main
    ```
 
 ---
