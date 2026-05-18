@@ -74,9 +74,14 @@ def test_servicos_ti_create_user_payload_all_fields() -> None:
 def test_servicos_ti_create_user_is_base_user() -> None:
     """Deve ser detectável como BaseUserPayload para polimorfismo."""
     payload = ServicoesTiCreateUserPayload(
-        name="X", cpf="000", user_type="externo",
-        alternative_email="x@x.com", company="C", role="R",
-        manager="M", expiration_date=_DATA_HOJE,
+        name="X",
+        cpf="000",
+        user_type="externo",
+        alternative_email="x@x.com",
+        company="C",
+        role="R",
+        manager="M",
+        expiration_date=_DATA_HOJE,
     )
     assert isinstance(payload, BaseUserPayload)
 
@@ -84,9 +89,14 @@ def test_servicos_ti_create_user_is_base_user() -> None:
 def test_servicos_ti_create_user_is_immutable() -> None:
     """frozen=True — não deve aceitar modificação após criação."""
     payload = ServicoesTiCreateUserPayload(
-        name="X", cpf="000", user_type="externo",
-        alternative_email="x@x.com", company="C", role="R",
-        manager="M", expiration_date=_DATA_HOJE,
+        name="X",
+        cpf="000",
+        user_type="externo",
+        alternative_email="x@x.com",
+        company="C",
+        role="R",
+        manager="M",
+        expiration_date=_DATA_HOJE,
     )
     with pytest.raises(FrozenInstanceError):
         payload.name = "Outro Nome"  # type: ignore[misc]
@@ -131,7 +141,9 @@ def test_servicos_ti_extend_access_payload() -> None:
 
 def test_servicos_ti_extend_access_is_base_access() -> None:
     payload = ServicoesTiExtendAccessPayload(
-        username="jsilva", cpf="123", new_expiration_date=_DATA_HOJE,
+        username="jsilva",
+        cpf="123",
+        new_expiration_date=_DATA_HOJE,
     )
     assert isinstance(payload, BaseAccessPayload)
 

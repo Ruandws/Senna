@@ -84,7 +84,7 @@ def test_write_masks_sensitive_data(tmp_path: Path) -> None:
     )
     arquivo = next(tmp_path.glob("*.jsonl"))
     entry = json.loads(arquivo.read_text(encoding="utf-8").strip())
-    
+
     assert entry["payload_summary"]["cpf"] == "***"
     assert entry["payload_summary"]["PASSWORD"] == "***"
     assert entry["payload_summary"]["name"] == "Joao"

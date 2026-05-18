@@ -4,10 +4,11 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-#Até 30/4 - Haviam 2 bases. ServiçosTI : 4 payloads | Integra : 3 payloads
+# Até 30/4 - Haviam 2 bases. ServiçosTI : 4 payloads | Integra : 3 payloads
 # =============================================================================
 # PAYLOADS BASE — campos mínimos comuns entre sistemas
 # =============================================================================
+
 
 @dataclass(frozen=True)
 class BaseUserPayload:
@@ -19,9 +20,11 @@ class BaseUserPayload:
 class BaseAccessPayload:
     username: str
 
+
 # =============================================================================
 # SERVIÇOS TI
 # =============================================================================
+
 
 @dataclass(frozen=True)
 class ServicoesTiCreateUserPayload(BaseUserPayload):
@@ -88,10 +91,7 @@ class ServicoesTiCpfCheckPayload:
 
     def __post_init__(self) -> None:
         if self.cpf is None and self.spreadsheet_path is None:
-            raise ValueError(
-                "Informe 'cpf' para consulta avulsa ou "
-                "'spreadsheet_path' para lote."
-            )
+            raise ValueError("Informe 'cpf' para consulta avulsa ou 'spreadsheet_path' para lote.")
         if self.cpf is not None and self.spreadsheet_path is not None:
             raise ValueError("Informe apenas 'cpf' ou 'spreadsheet_path', não ambos.")
 
@@ -99,6 +99,7 @@ class ServicoesTiCpfCheckPayload:
 # =============================================================================
 # INTEGRA
 # =============================================================================
+
 
 @dataclass(frozen=True)
 class IntegraCreateUserPayload(BaseAccessPayload):

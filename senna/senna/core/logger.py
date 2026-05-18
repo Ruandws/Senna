@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 import json
 import logging
 import logging.handlers
-from datetime import datetime, timezone
 from pathlib import Path
 
 from senna.core.config import settings
@@ -18,6 +18,7 @@ _AUDIT_DIR.mkdir(parents=True, exist_ok=True)
 # =============================================================================
 # App Logger
 # =============================================================================
+
 
 def _build_app_logger() -> logging.Logger:
     logger = logging.getLogger("senna")
@@ -42,6 +43,7 @@ app_logger: logging.Logger = _build_app_logger()
 # =============================================================================
 # Audit Logger
 # =============================================================================
+
 
 class AuditLogger:
     def __init__(self, audit_dir: Path) -> None:

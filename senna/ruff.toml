@@ -1,24 +1,51 @@
-# regras do linter isoladas do pyproject para fácil ajuste
+# Ruff — Linter e Formatter do Senna
+# Documentação: https://docs.astral.sh/ruff/
 
-line-length = 88
+# ---------------------------------------------------------------------------
+# Alvo e escopo
+# ---------------------------------------------------------------------------
 target-version = "py314"
- 
+
+src = ["senna", "tests"]
+
+exclude = [
+    ".git",
+    ".venv",
+    "data/",
+    "logs/",
+    "docs/",
+    "agents/",
+]
+
+line-length = 100
+
+# ---------------------------------------------------------------------------
+# Regras ativas
+# Referência: https://docs.astral.sh/ruff/rules/
+#
+# E   → pycodestyle errors       (formatação e estilo básico)
+# F   → Pyflakes                 (imports não usados, variáveis indefinidas)
+# I   → isort                    (ordenação de imports)
+# ANN → flake8-annotations       (type hints obrigatórios — alinhado §14.1)
+# ---------------------------------------------------------------------------
 [lint]
-select = [
-    "E",   # pycodestyle errors
-    "F",   # pyflakes
-    "I",   # isort
-    "ANN", # type annotations
-]
- 
+select = ["E", "F", "I", "ANN"]
+
 ignore = [
-    "ANN101", # missing type annotation for `self`
-    "ANN102", # missing type annotation for `cls`
+    "ANN101",  # `self` não precisa de anotação
+    "ANN102",  # `cls` não precisa de anotação
+    "ANN401",  # permite `Any` quando estritamente necessário (ex: Result[T, E])
 ]
- 
-[lint.per-file-ignores]
-"tests/**/*.py" = ["ANN"] # testes não exigem anotação completa
- 
+
+# Garante que imports de __future__ venham antes de qualquer outro
+[lint.isort]
+force-sort-within-sections = true
+known-first-party = ["senna"]
+
+# ---------------------------------------------------------------------------
+# Formatter (substitui Black)
+# ---------------------------------------------------------------------------
 [format]
 quote-style = "double"
 indent-style = "space"
+line-ending = "lf"

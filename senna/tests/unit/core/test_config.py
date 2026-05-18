@@ -37,7 +37,7 @@ from senna.core.config import Settings, _is_true
         ("0", False),
         ("no", False),
         ("", False),
-        ("  true  ", True),   # strip deve funcionar
+        ("  true  ", True),  # strip deve funcionar
     ],
 )
 def test_is_true(value: str, expected: bool) -> None:
@@ -105,15 +105,11 @@ def test_settings_default_data_dirs(monkeypatch: pytest.MonkeyPatch) -> None:
     assert s.data.temp_dir == "data/temp"
 
 
-def test_settings_load_with_toml_file(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
+def test_settings_load_with_toml_file(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """settings.toml deve sobrescrever defaults."""
     toml_file = tmp_path / "settings.toml"
     toml_file.write_text(
-        "[browser]\ntimeout_ms = 30000\n"
-        "[log]\nlevel = 'DEBUG'\n",
-        encoding="utf-8"
+        "[browser]\ntimeout_ms = 30000\n[log]\nlevel = 'DEBUG'\n", encoding="utf-8"
     )
     monkeypatch.setattr("senna.core.config._SETTINGS_PATH", toml_file)
     monkeypatch.delenv("DEBUG_BROWSER", raising=False)
@@ -121,7 +117,6 @@ def test_settings_load_with_toml_file(
     s = Settings.load()
     assert s.browser.timeout_ms == 30_000
     assert s.log.level == "DEBUG"
-
 
 
 # =============================================================================

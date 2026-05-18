@@ -2,10 +2,10 @@
 # instancia objetos para imports em outros arquivos, e expõe objeto Settings
 from __future__ import annotations
 
-import os
-import tomllib
 from dataclasses import dataclass, field
+import os
 from pathlib import Path
+import tomllib
 
 from dotenv import load_dotenv
 
@@ -44,7 +44,7 @@ class DataSettings:
 
 
 @dataclass
-class Settings: # Instanciado, qualquer outro arquivo só importa e usa
+class Settings:  # Instanciado, qualquer outro arquivo só importa e usa
     browser: BrowserSettings = field(default_factory=BrowserSettings)
     log: LogSettings = field(default_factory=LogSettings)
     data: DataSettings = field(default_factory=DataSettings)
@@ -82,9 +82,7 @@ class Settings: # Instanciado, qualquer outro arquivo só importa e usa
         """Levanta EnvironmentError se qualquer chave estiver ausente no ambiente."""
         missing = [k for k in keys if not os.getenv(k)]
         if missing:
-            raise EnvironmentError(
-                f"Credenciais obrigatórias ausentes: {', '.join(missing)}"
-            )
+            raise EnvironmentError(f"Credenciais obrigatórias ausentes: {', '.join(missing)}")
 
 
 def _is_true(value: str) -> bool:
