@@ -1,131 +1,136 @@
+"""
+Modelos de dados e payloads do Senna.
+
+Todos os payloads são dataclasses tipadas e imutáveis (frozen=True).
+Dicionários soltos são proibidos para dados críticos de execução (§14.1, Boundaries §15).
+
+Cada payload corresponde a um ou mais procedimentos definidos em RF-04:
+
+  UserPayload    → P1 (Adicionar usuário)
+  RemovalPayload → P2 (Remover usuário)
+  AccessPayload  → P3 (Alterar data de expiração)
+  ProfilePayload → P4 (Conceder/revogar perfil de acesso)
+
+Uso:
+    from senna.core.models import UserPayload, ProfilePayload
+
+    payload = UserPayload(
+        name="João Silva",
+        registration="12345",
+        email="joao.silva@hospital.gov.br",
+        profile="assistente",
+    )
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
-from pathlib import Path
+from enum import StrEnum
 
-# Até 30/4 - Haviam 2 bases. ServiçosTI : 4 payloads | Integra : 3 payloads
-# =============================================================================
-# PAYLOADS BASE — campos mínimos comuns entre sistemas
-# =============================================================================
+# ---------------------------------------------------------------------------
+# Enums de domínio
+# ---------------------------------------------------------------------------
+
+
+class ProfileAction(StrEnum):
+    """Ação sobre um perfil de acesso (P4)."""
+
+    GRANT = "grant"
+    REVOKE = "revoke"
+
+
+# ---------------------------------------------------------------------------
+# Payloads
+# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
-class BaseUserPayload:
+class UserPayload:
+    """
+    Payload para P1 — Adicionar usuário.
+
+    Campos:
+      name         — nome completo do usuário
+      registration — matrícula funcional (identificador único no sistema)
+      email        — e-mail institucional
+      profile      — perfil de acesso inicial a ser atribuído
+    """
+
     name: str
-    cpf: str
-
-
-@dataclass(frozen=True)
-class BaseAccessPayload:
-    username: str
-
-
-# =============================================================================
-# SERVIÇOS TI
-# =============================================================================
-
-
-@dataclass(frozen=True)
-class ServicoesTiCreateUserPayload(BaseUserPayload):
-    """
-    estende BaseUserPayload com campos do formulário do portal.
-    Como: UI monta este payload; AddUserProcedure o passa ao ServicoesTiClient.
-
-    Campos: Tipo, Nome*, CPF*, E-mail alternativo, Empresa, Cargo,
-            Gerente, Data de expiração.
-    (*) herdados de BaseUserPayload.
-    """
-
-    user_type: str
-    alternative_email: str
-    company: str
-    role: str
-    manager: str
-    expiration_date: date
-
-
-@dataclass(frozen=True)
-class ServicoesTiModelingPayload(BaseUserPayload):
-    """
-    O quê: estende BaseUserPayload com escritório, login e campos
-           corporativos. - Usado pela ModelingProcedure
-    Campos: Tipo, Escritório, Nome*, Login, CPF*, E-mail alternativo,
-            Empresa, Cargo, Gerente, Data de expiração.
-    """
-
-    user_type: str
-    office: str
-    login: str
-    alternative_email: str
-    company: str
-    role: str
-    manager: str
-    expiration_date: date
-
-
-@dataclass(frozen=True)
-class ServicoesTiExtendAccessPayload(BaseAccessPayload):
-    """
-    O quê: estende BaseAccessPayload com CPF e nova data de expiração.
-    Campos: CPF, Usuário*, Nova data.
-    (*) herdado de BaseAccessPayload como `username`.
-    """
-
-    cpf: str
-    new_expiration_date: date
-
-
-@dataclass(frozen=True)
-class ServicoesTiCpfCheckPayload:
-    """
-    O quê: payload para verificação avulsa de um CPF ou lote via planilha.
-    Como: se `cpf` preenchido, consulta unitária. Se `spreadsheet_path`
-          fornecido, DataLoader processa o lote. Exatamente um dos dois
-          deve estar presente.
-    Campos: CPF (avulso) | caminho da planilha (lote).
-    """
-
-    cpf: str | None = None
-    spreadsheet_path: Path | None = None
-
-    def __post_init__(self) -> None:
-        if self.cpf is None and self.spreadsheet_path is None:
-            raise ValueError("Informe 'cpf' para consulta avulsa ou 'spreadsheet_path' para lote.")
-        if self.cpf is not None and self.spreadsheet_path is not None:
-            raise ValueError("Informe apenas 'cpf' ou 'spreadsheet_path', não ambos.")
-
-
-# =============================================================================
-# INTEGRA
-# =============================================================================
-
-
-@dataclass(frozen=True)
-class IntegraCreateUserPayload(BaseAccessPayload):
-    """
-    O quê: payload mínimo — herda `username` de BaseAccessPayload sem campos extras.
-    Como: AddUserProcedure no Integra instancia este payload e cria o registro.
-    (*) herdado de BaseAccessPayload como `username`.
-    """
-
-
-@dataclass(frozen=True)
-class IntegraGrantProfilePayload(BaseAccessPayload):
-    """
-    O quê: estende BaseAccessPayload com o perfil desejado.
-    Como: GrantProfileProcedure localiza o usuário e aplica o perfil informado.
-    (*) herdado de BaseAccessPayload como `username`.
-    """
-
+    registration: str
+    email: str
     profile: str
 
 
 @dataclass(frozen=True)
-class IntegraDeactivateUserPayload(BaseAccessPayload):
+class RemovalPayload:
     """
-    O quê: payload mínimo — herda `username` de BaseAccessPayload sem campos extras.
-    Como: DeactivateUserProcedure localiza e inativa o usuário pelo login.
+    Payload para P2 — Remover usuário.
 
-    (*) herdado de BaseAccessPayload como `username`.
+    Exige ao menos um identificador: matrícula ou login.
+    A validação de presença mínima é feita em procedure.validate().
+
+    Campos:
+      registration — matrícula funcional (opcional se login fornecido)
+      login        — login do sistema-alvo (opcional se registration fornecida)
     """
+
+    registration: str | None = None
+    login: str | None = None
+
+
+@dataclass(frozen=True)
+class AccessPayload:
+    """
+    Payload para P3 — Alterar data de expiração.
+
+    Campos:
+      registration    — matrícula funcional do usuário
+      expiration_date — nova data de expiração do acesso
+    """
+
+    registration: str
+    expiration_date: date
+
+
+@dataclass(frozen=True)
+class ProfilePayload:
+    """
+    Payload para P4 — Conceder ou revogar perfil de acesso.
+
+    Campos:
+      registration — matrícula funcional do usuário
+      profile      — perfil a ser concedido ou revogado
+      action       — ProfileAction.GRANT ou ProfileAction.REVOKE
+    """
+
+    registration: str
+    profile: str
+    action: ProfileAction
+
+
+# ---------------------------------------------------------------------------
+# ExecutionRecord — resultado por linha no processamento em lote (RF-05)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class ExecutionRecord:
+    """
+    Representa o resultado de uma execução individual dentro de um lote.
+    Compõe o relatório salvo em data/output/ ao final do processamento.
+
+    Campos:
+      row_index    — índice da linha na planilha (base 0)
+      system_id    — sistema-alvo da execução
+      procedure_id — procedimento executado
+      success      — True se concluiu sem erros
+      message      — mensagem de sucesso ou descrição do erro
+    """
+
+    row_index: int
+    system_id: str
+    procedure_id: str
+    success: bool
+    message: str
