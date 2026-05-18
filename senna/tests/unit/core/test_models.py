@@ -1,214 +1,197 @@
 """
 Testes unitários para senna.core.models
 
-O QUÊ: valida instanciação, herança e regras de negócio dos payloads.
+O QUÊ: valida instanciação, imutabilidade e regras dos payloads e enums.
 PARA QUÊ: payloads errados chegando aos procedures causam automações
           corrompidas no sistema real; testar aqui é barato, testar lá é caro.
-COMO: instancia cada dataclass com dados válidos e inválidos;
-      verifica frozen=True (imutabilidade); testa __post_init__ de CpfCheck.
-      Sem I/O — 100% em memória.
+COMO: instancia cada dataclass com dados válidos; verifica frozen=True
+      (imutabilidade); valida ProfileAction (StrEnum) e campos opcionais
+      de RemovalPayload. Sem I/O — 100% em memória.
 """
 
 from __future__ import annotations
 
 from dataclasses import FrozenInstanceError
 from datetime import date
-from pathlib import Path
 
 import pytest
 
 from senna.core.models import (
-    BaseAccessPayload,
-    BaseUserPayload,
-    IntegraCreateUserPayload,
-    IntegraDeactivateUserPayload,
-    IntegraGrantProfilePayload,
-    ServicoesTiCpfCheckPayload,
-    ServicoesTiCreateUserPayload,
-    ServicoesTiExtendAccessPayload,
-    ServicoesTiModelingPayload,
+    AccessPayload,
+    ExecutionRecord,
+    ProfileAction,
+    ProfilePayload,
+    RemovalPayload,
+    UserPayload,
 )
 
-# Datas fixas para não depender de "hoje"
-_DATA_HOJE = date(2025, 12, 31)
+_DATA_FIXA = date(2026, 12, 31)
 
 
-# =============================================================================
-# Bases
-# =============================================================================
+# =========================================================================
+# ProfileAction (StrEnum)
+# =========================================================================
 
 
-def test_base_user_payload_instantiation() -> None:
-    payload = BaseUserPayload(name="João Silva", cpf="12345678901")
-    assert payload.name == "João Silva"
-    assert payload.cpf == "12345678901"
+def test_profile_action_grant_value() -> None:
+    """ProfileAction.GRANT deve ter valor 'grant'."""
+    assert ProfileAction.GRANT == "grant"
 
 
-def test_base_access_payload_instantiation() -> None:
-    payload = BaseAccessPayload(username="jsilva")
-    assert payload.username == "jsilva"
+def test_profile_action_revoke_value() -> None:
+    """ProfileAction.REVOKE deve ter valor 'revoke'."""
+    assert ProfileAction.REVOKE == "revoke"
 
 
-# =============================================================================
-# ServicoesTi — CreateUser
-# =============================================================================
+def test_profile_action_is_str() -> None:
+    """ProfileAction deve ser usável como string nativa."""
+    assert isinstance(ProfileAction.GRANT, str)
 
 
-def test_servicos_ti_create_user_payload_all_fields() -> None:
-    """Payload completo deve instanciar sem erros e preservar todos os valores."""
-    payload = ServicoesTiCreateUserPayload(
+# =========================================================================
+# UserPayload (P1)
+# =========================================================================
+
+
+def test_user_payload_all_fields() -> None:
+    """Payload completo deve instanciar e preservar todos os valores."""
+    payload = UserPayload(
         name="Maria Souza",
-        cpf="98765432100",
-        user_type="interno",
-        alternative_email="maria@hospital.gov.br",
-        company="Hospital Geral",
-        role="Enfermeira",
-        manager="Carlos Lima",
-        expiration_date=_DATA_HOJE,
+        registration="12345",
+        email="maria@hospital.gov.br",
+        profile="enfermeira",
     )
     assert payload.name == "Maria Souza"
-    assert payload.cpf == "98765432100"
-    assert payload.expiration_date == _DATA_HOJE
+    assert payload.registration == "12345"
+    assert payload.email == "maria@hospital.gov.br"
+    assert payload.profile == "enfermeira"
 
 
-def test_servicos_ti_create_user_is_base_user() -> None:
-    """Deve ser detectável como BaseUserPayload para polimorfismo."""
-    payload = ServicoesTiCreateUserPayload(
-        name="X",
-        cpf="000",
-        user_type="externo",
-        alternative_email="x@x.com",
-        company="C",
-        role="R",
-        manager="M",
-        expiration_date=_DATA_HOJE,
-    )
-    assert isinstance(payload, BaseUserPayload)
-
-
-def test_servicos_ti_create_user_is_immutable() -> None:
+def test_user_payload_is_immutable() -> None:
     """frozen=True — não deve aceitar modificação após criação."""
-    payload = ServicoesTiCreateUserPayload(
-        name="X",
-        cpf="000",
-        user_type="externo",
-        alternative_email="x@x.com",
-        company="C",
-        role="R",
-        manager="M",
-        expiration_date=_DATA_HOJE,
-    )
+    payload = UserPayload(name="X", registration="0", email="x@x.com", profile="p")
     with pytest.raises(FrozenInstanceError):
-        payload.name = "Outro Nome"  # type: ignore[misc]
+        payload.name = "Outro"  # type: ignore[misc]
 
 
-# =============================================================================
-# ServicoesTi — Modeling
-# =============================================================================
+# =========================================================================
+# RemovalPayload (P2) — campos opcionais
+# =========================================================================
 
 
-def test_servicos_ti_modeling_payload_includes_login_and_office() -> None:
-    payload = ServicoesTiModelingPayload(
-        name="Pedro Alves",
-        cpf="11122233344",
-        user_type="interno",
-        office="Sede",
-        login="palves",
-        alternative_email="pedro@h.com",
-        company="H",
-        role="TI",
-        manager="Chefe",
-        expiration_date=_DATA_HOJE,
+def test_removal_payload_with_registration_only() -> None:
+    """RemovalPayload aceita apenas registration."""
+    payload = RemovalPayload(registration="12345")
+    assert payload.registration == "12345"
+    assert payload.login is None
+
+
+def test_removal_payload_with_login_only() -> None:
+    """RemovalPayload aceita apenas login."""
+    payload = RemovalPayload(login="jsilva")
+    assert payload.login == "jsilva"
+    assert payload.registration is None
+
+
+def test_removal_payload_with_both() -> None:
+    """RemovalPayload aceita ambos os campos preenchidos."""
+    payload = RemovalPayload(registration="12345", login="jsilva")
+    assert payload.registration == "12345"
+    assert payload.login == "jsilva"
+
+
+def test_removal_payload_is_immutable() -> None:
+    payload = RemovalPayload(login="x")
+    with pytest.raises(FrozenInstanceError):
+        payload.login = "y"  # type: ignore[misc]
+
+
+# =========================================================================
+# AccessPayload (P3)
+# =========================================================================
+
+
+def test_access_payload_all_fields() -> None:
+    payload = AccessPayload(registration="12345", expiration_date=_DATA_FIXA)
+    assert payload.registration == "12345"
+    assert payload.expiration_date == _DATA_FIXA
+
+
+def test_access_payload_is_immutable() -> None:
+    payload = AccessPayload(registration="12345", expiration_date=_DATA_FIXA)
+    with pytest.raises(FrozenInstanceError):
+        payload.registration = "99999"  # type: ignore[misc]
+
+
+# =========================================================================
+# ProfilePayload (P4)
+# =========================================================================
+
+
+def test_profile_payload_grant() -> None:
+    payload = ProfilePayload(
+        registration="12345",
+        profile="MEDICO",
+        action=ProfileAction.GRANT,
     )
-    assert payload.login == "palves"
-    assert payload.office == "Sede"
-
-
-# =============================================================================
-# ServicoesTi — ExtendAccess
-# =============================================================================
-
-
-def test_servicos_ti_extend_access_payload() -> None:
-    payload = ServicoesTiExtendAccessPayload(
-        username="jsilva",
-        cpf="12345678901",
-        new_expiration_date=_DATA_HOJE,
-    )
-    assert payload.username == "jsilva"
-    assert payload.new_expiration_date == _DATA_HOJE
-
-
-def test_servicos_ti_extend_access_is_base_access() -> None:
-    payload = ServicoesTiExtendAccessPayload(
-        username="jsilva",
-        cpf="123",
-        new_expiration_date=_DATA_HOJE,
-    )
-    assert isinstance(payload, BaseAccessPayload)
-
-
-# =============================================================================
-# ServicoesTi — CpfCheck (com __post_init__)
-# =============================================================================
-
-
-def test_cpf_check_with_cpf_only() -> None:
-    """Consulta avulsa por CPF deve funcionar."""
-    payload = ServicoesTiCpfCheckPayload(cpf="12345678901")
-    assert payload.cpf == "12345678901"
-    assert payload.spreadsheet_path is None
-
-
-def test_cpf_check_with_spreadsheet_only() -> None:
-    """Consulta em lote por planilha deve funcionar."""
-    path = Path("data/input/lote.xlsx")
-    payload = ServicoesTiCpfCheckPayload(spreadsheet_path=path)
-    assert payload.spreadsheet_path == path
-    assert payload.cpf is None
-
-
-def test_cpf_check_raises_when_both_none() -> None:
-    """Sem CPF e sem planilha deve levantar ValueError."""
-    with pytest.raises(ValueError, match="cpf"):
-        ServicoesTiCpfCheckPayload()
-
-
-def test_cpf_check_raises_when_both_provided() -> None:
-    """CPF e planilha juntos devem levantar ValueError."""
-    with pytest.raises(ValueError, match="apenas"):
-        ServicoesTiCpfCheckPayload(
-            cpf="123",
-            spreadsheet_path=Path("data/input/lote.xlsx"),
-        )
-
-
-# =============================================================================
-# Integra
-# =============================================================================
-
-
-def test_integra_create_user_payload() -> None:
-    """Payload mínimo — só username herdado."""
-    payload = IntegraCreateUserPayload(username="mrocha")
-    assert payload.username == "mrocha"
-    assert isinstance(payload, BaseAccessPayload)
-
-
-def test_integra_grant_profile_payload() -> None:
-    payload = IntegraGrantProfilePayload(username="mrocha", profile="MEDICO")
+    assert payload.registration == "12345"
     assert payload.profile == "MEDICO"
-    assert isinstance(payload, BaseAccessPayload)
+    assert payload.action == ProfileAction.GRANT
 
 
-def test_integra_deactivate_user_payload() -> None:
-    payload = IntegraDeactivateUserPayload(username="mrocha")
-    assert payload.username == "mrocha"
-    assert isinstance(payload, BaseAccessPayload)
+def test_profile_payload_revoke() -> None:
+    payload = ProfilePayload(
+        registration="12345",
+        profile="MEDICO",
+        action=ProfileAction.REVOKE,
+    )
+    assert payload.action == ProfileAction.REVOKE
 
 
-def test_integra_payloads_are_immutable() -> None:
-    """Todos os payloads Integra são frozen."""
-    payload = IntegraGrantProfilePayload(username="x", profile="Y")
+def test_profile_payload_is_immutable() -> None:
+    payload = ProfilePayload(registration="0", profile="X", action=ProfileAction.GRANT)
     with pytest.raises(FrozenInstanceError):
-        payload.profile = "Z"  # type: ignore[misc]
+        payload.profile = "Y"  # type: ignore[misc]
+
+
+# =========================================================================
+# ExecutionRecord (RF-05)
+# =========================================================================
+
+
+def test_execution_record_all_fields() -> None:
+    record = ExecutionRecord(
+        row_index=0,
+        system_id="servicos_ti",
+        procedure_id="add_user",
+        success=True,
+        message="Usuário criado.",
+    )
+    assert record.row_index == 0
+    assert record.system_id == "servicos_ti"
+    assert record.procedure_id == "add_user"
+    assert record.success is True
+    assert record.message == "Usuário criado."
+
+
+def test_execution_record_failure() -> None:
+    record = ExecutionRecord(
+        row_index=5,
+        system_id="aghux",
+        procedure_id="remove_user",
+        success=False,
+        message="Usuário não encontrado.",
+    )
+    assert record.success is False
+
+
+def test_execution_record_is_immutable() -> None:
+    record = ExecutionRecord(
+        row_index=0,
+        system_id="s",
+        procedure_id="p",
+        success=True,
+        message="ok",
+    )
+    with pytest.raises(FrozenInstanceError):
+        record.success = False  # type: ignore[misc]
