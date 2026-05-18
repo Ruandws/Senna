@@ -5,8 +5,11 @@
 
 ## 1. Visão Geral
 
-O **Senna** é uma aplicação desktop desenvolvida em Python que centraliza automações web voltadas à gestão de usuários em sistemas hospitalares. 
-O técnico de TI, ao receber um chamado, abre o Senna, seleciona o sistema-alvo, escolhe o procedimento desejado, preenche os dados do formulário e dispara a automação. O Senna executa o fluxo via Playwright em segundo plano e exibe o resultado na interface.
+O **Senna** é uma aplicação desktop em Python que centraliza automações web voltadas à gestão de usuários em sistemas hospitalares.
+
+O técnico de TI, ao receber um chamado, abre o Senna, seleciona o sistema-alvo, escolhe o procedimento desejado, preenche o formulário e dispara a automação. O Senna executa o fluxo via Playwright em segundo plano e exibe o resultado na interface.
+
+**Usuários:** Técnico de TI (executa procedimentos), Coordenador de TI (consulta logs de auditoria), Desenvolvedor (estende o Senna com novos sistemas e procedimentos).
 
 ---
 
@@ -14,22 +17,14 @@ O técnico de TI, ao receber um chamado, abre o Senna, seleciona o sistema-alvo,
 
 | # | Objetivo | Critério de Sucesso |
 |---|----------|---------------------|
-| O1 | Automatizar procedimentos repetitivos. | Execução de ponta a ponta sem intervenção manual |
+| O1 | Automatizar procedimentos repetitivos | Execução de ponta a ponta sem intervenção manual |
 | O2 | Centralizar 5 sistemas na mesma interface | Todos os sistemas operáveis a partir do Senna |
 | O4 | Permitir processamento em lote via planilha | Importação de XLSX validado pelo Senna |
 | O5 | Facilitar extensão para novos sistemas e procedimentos | Novo sistema = nova pasta com contratos já definidos |
 
 ---
 
-## 3. Stakeholders
-
-- **Técnico de TI**: usuário primário — executa procedimentos via interface.
-- **Coordenador de TI**: consulta logs de auditoria e relatórios de execução.
-- **Desenvolvedor**: estende o Senna com novos sistemas e procedimentos.
-
----
-
-## 4. Stack de Tecnologias
+## 3. Stack de Tecnologias
 
 | Componente | Tecnologia | Versão |
 |------------|-----------|--------|
@@ -43,36 +38,7 @@ O técnico de TI, ao receber um chamado, abre o Senna, seleciona o sistema-alvo,
 
 ---
 
-## 5. Sistemas Suportados (Fase 1)
-
-Cada sistema é isolado em seu próprio subpacote dentro de `senna/systems/`. Os nomes abaixo são placeholders até a definição oficial pela equipe:
-
-| ID | Nome do Pacote | Descrição |
-|----|---------------|-----------|
-| S1 | `servicos_ti` | Portal de serviços de TI corporativo |
-| S2 | `aghux` | Sistema de gestão hospitalar AGHUx |
-| S3 | `integra` | Sistema de integração de dados |
-| S4 | *(a definir)* | Quarto sistema — mesmo padrão estrutural |
-| S5 | *(a definir)* | Quinto sistema — mesmo padrão estrutural |
-
----
-
-## 6. Procedimentos por Sistema
-
-Os procedimentos abaixo aplicam-se a todos os sistemas que os suportem. Cada procedimento é uma classe independente que herda `BaseProcedure`.
-
-| ID | Procedimento | Payload Necessário |
-|----|-------------|-------------------|
-| P1 | Adicionar usuário | nome, matrícula, e-mail, perfil |
-| P2 | Remover usuário | matrícula ou login |
-| P3 | Alterar data de expiração | matrícula, nova data |
-| P4 | Conceder/revogar perfil de acesso | matrícula, perfil, ação (grant/revoke) |
-
-> Nem todo sistema suportará todos os procedimentos. A disponibilidade é declarada no `AVAILABLE_SYSTEMS` de `senna/systems/__init__.py`.
-
----
-
-## 7. Requisitos Funcionais
+## 4. Requisitos Funcionais
 
 ### RF-01 — Seleção de Sistema
 - A UI deve exibir somente sistemas registrados em `AVAILABLE_SYSTEMS`.
@@ -86,11 +52,20 @@ Os procedimentos abaixo aplicam-se a todos os sistemas que os suportem. Cada pro
 - Mensagens de erro são exibidas inline, próximas ao campo inválido.
 
 ### RF-04 — Execução Individual
-- Após o usuário preencher o formulário e clicar em "Executar", o Senna instancia o procedimento via `Orchestrator`, passa o payload e aguarda o `Result` o qual é exibido na interface.
+Após o usuário preencher o formulário e clicar em "Executar", o Senna instancia o procedimento via `Orchestrator`, passa o payload e aguarda o `Result`, exibido na interface.
+
+Procedimentos disponíveis (aplicam-se a todos os sistemas que os suportem; disponibilidade declarada em `AVAILABLE_SYSTEMS`):
+
+| ID | Procedimento | Payload |
+|----|-------------|---------|
+| P1 | Adicionar usuário | nome, matrícula, e-mail, perfil |
+| P2 | Remover usuário | matrícula ou login |
+| P3 | Alterar data de expiração | matrícula, nova data |
+| P4 | Conceder/revogar perfil de acesso | matrícula, perfil, ação (grant/revoke) |
 
 ### RF-05 — Execução em Lote
-- O usuáro importa um arquivo XLSX, que é validado em colunas obrigatórias pelo `DataLoader`.
-- O Senna executa cada linha como uma execução individual sequencial.
+- O usuário importa um arquivo XLSX, validado em colunas obrigatórias pelo `DataLoader`.
+- O Senna executa cada linha como execução individual sequencial.
 - Um relatório consolidado é salvo em `data/output/`.
 
 ### RF-06 — Gerenciamento de Credenciais
@@ -104,41 +79,33 @@ Os procedimentos abaixo aplicam-se a todos os sistemas que os suportem. Cada pro
 
 ---
 
-## 8. Requisitos Não Funcionais
+## 5. Requisitos Não Funcionais
 
 | ID | Requisito | Meta |
 |----|----------|------|
-| RNF-01 | O sistema deve executar cada procedimento em até 60 segundos.
-| RNF-02 | O sistema deve exibir feedback visual durante toda execução, com indicador de progresso
-| RNF-03 | O sistema deve tratar qualquer exceção capturando-a e registrando-a sem travar a UI
-| RNF-04 | O sistema não deve exigir alteração de código fora de seu subpacote
-| RNF-05 | Qualidade de código | Zero erros Ruff na pipeline; cobertura de testes ≥ 80% |
-| RNF-06 | O sistema deve funcionar em windows 10+
-| RNF-07 | O sistema deve tratar credenciais apenas em `.env`, nunca em código ou logs |
+| RNF-01 | Tempo máximo por procedimento | 60 segundos |
+| RNF-02 | Feedback visual durante execução | Indicador de progresso em toda execução |
+| RNF-03 | Tratamento de exceções | Capturadas e registradas sem travar a UI |
+| RNF-04 | Isolamento de sistema | Sem alteração de código fora do subpacote do sistema |
+| RNF-05 | Qualidade de código | Zero erros Ruff; cobertura de testes ≥ 80% |
+| RNF-06 | Compatibilidade | Windows 10+ |
+| RNF-07 | Segurança de credenciais | Apenas em `.env`, nunca em código ou logs |
 
 ---
 
-## 9. Restrições
+## 6. Restrições
 
-- **R1**: O Launcher **não** substitui controles de acesso dos sistemas-alvo; apenas automatiza ações que o técnico já teria permissão de realizar manualmente.
-
-
-- **R2**: O Playwright opera em modo **headless** por padrão; modo com janela visível disponível via variável de ambiente `DEBUG_BROWSER=true`.
-
-
+- **R1**: O Senna **não** substitui controles de acesso dos sistemas-alvo; apenas automatiza ações que o técnico já teria permissão de realizar manualmente.
+- **R2**: O Playwright opera em modo **headless** por padrão; modo visível disponível via `DEBUG_BROWSER=true`.
 - **R3**: O processamento em lote é **sequencial** na Fase 1; paralelismo é escopo futuro.
-
-
-- **R4**: A interface **não** implementa autenticação própria na Fase 1 — controle de acesso ao Launcher é responsabilidade do SO.
-
-
+- **R4**: A interface **não** implementa autenticação própria na Fase 1 — controle de acesso ao Senna é responsabilidade do SO.
 - **R5**: Arquivos em `data/output/` e `logs/` são **gitignored** e nunca versionados.
 
 ---
 
-## 10. Arquitetura
+## 7. Arquitetura
 
-### 10.1 Camadas
+### 7.1 Camadas
 
 ```
 ┌──────────────────────────────────────┐
@@ -154,7 +121,7 @@ Os procedimentos abaixo aplicam-se a todos os sistemas que os suportem. Cada pro
 └──────────────────────────────────────┘
 ```
 
-### 10.2 Fluxo de Execução
+### 7.2 Fluxo de Execução
 
 ```
 Técnico seleciona sistema + procedimento
@@ -187,17 +154,17 @@ audit_logger.write(entrada_json)
 UI exibe resultado ao técnico
 ```
 
-### 10.3 Padrão Result
+### 7.3 Padrão Result
 
 Toda operação retorna `Result[T, E]` — nunca lança exceção para a camada de UI. A UI lê `result.success` para decidir o que exibir.
 
-### 10.4 Padrão Page Object
+### 7.4 Padrão Page Object
 
-Cada sistema possui `pages/` com classes que encapsulam ações de tela, e `locators/` com seletores isolados. Procedimentos **nunca** contêm seletores diretamente.
+Cada sistema possui `pages/` com classes que encapsulam ações de tela e `locators/` com seletores isolados. Procedimentos **nunca** contêm seletores diretamente.
 
 ---
 
-## 11. Estrutura de Diretórios (Referência)
+## 8. Estrutura de Diretórios
 
 ```
 senna/
@@ -205,12 +172,15 @@ senna/
 │   ├── core/          # ABCs, Orchestrator, Models, Config, Logger, Result
 │   ├── interface/     # UI CustomTkinter + formulários dinâmicos
 │   ├── systems/
-│   │   ├── servicos_ti/
-│   │   │   ├── procedures/   # add_user, remove_user, extend_access, grant_profile
-│   │   │   ├── pages/        # login_page, user_page
-│   │   │   └── locators/     # login_locators, user_locators
-│   │   ├── aghux/            # mesma estrutura
-│   │   └── integra/          # mesma estrutura
+│   │   ├── __init__.py        # AVAILABLE_SYSTEMS
+│   │   ├── servicos_ti/       # S1 — Portal de serviços de TI corporativo
+│   │   │   ├── procedures/    # add_user, remove_user, extend_access, grant_profile
+│   │   │   ├── pages/         # login_page, user_page
+│   │   │   └── locators/      # login_locators, user_locators
+│   │   ├── aghux/             # S2 — Sistema de gestão hospitalar AGHUx (mesma estrutura)
+│   │   ├── integra/           # S3 — Sistema de integração de dados (mesma estrutura)
+│   │   ├── s4/                # S4 — a definir (mesma estrutura)
+│   │   └── s5/                # S5 — a definir (mesma estrutura)
 │   └── utils/         # BrowserFactory, DataLoader
 ├── tests/
 │   ├── unit/          # sem rede, sem browser — lógica pura
@@ -229,7 +199,7 @@ senna/
 
 ---
 
-## 12. Plano de Desenvolvimento — Passo a Passo
+## 9. Plano de Desenvolvimento
 
 ### Fase 0 — Fundação (Sprint 1)
 **Objetivo**: infraestrutura funcionando, zero lógica de negócio.
@@ -283,7 +253,7 @@ senna/
 **Objetivo**: UI funcional conectada ao Orchestrator.
 
 - [ ] `3.1` Implementar `interface/forms.py`: definição declarativa de campos por procedimento.
-- [ ] `3.2` Implementar `interface/ui_main.py`: tela inicial (seleção de sistema), tela de procedimento, formulário dinâmico, área de resultado.
+- [ ] `3.2` Implementar `interface/ui_main.py`: tela inicial, seleção de sistema, formulário dinâmico, área de resultado.
 - [ ] `3.3` Conectar UI → `Orchestrator` → `Result` → exibição.
 - [ ] `3.4` Indicador de progresso durante execução (thread separada para não travar a UI).
 - [ ] `3.5` Exibição inline de erros de validação de formulário.
@@ -331,7 +301,7 @@ senna/
 
 ---
 
-## 13. Definição de Pronto (Definition of Done)
+## 10. Definição de Pronto
 
 Uma funcionalidade está **pronta** quando:
 
@@ -340,15 +310,15 @@ Uma funcionalidade está **pronta** quando:
 3. Testes de integração escritos e verdes (quando aplicável).
 4. Log de auditoria gerado corretamente para o caminho feliz e para falhas.
 5. `Result[T, E]` retornado corretamente — sem exceções não tratadas chegando à UI.
-6. Código revisado e commitado com mensagem semântica (`feat:`, `fix:`, `test:`, `refactor:`).
+6. Código commitado com mensagem semântica (`feat:`, `fix:`, `test:`, `refactor:`).
 
 ---
 
-## 14. Riscos e Mitigações
+## 11. Riscos e Mitigações
 
 | Risco | Probabilidade | Impacto | Mitigação |
 |-------|-------------|---------|-----------|
-| Seletores dos sistemas mudam sem aviso | Alta | Alto | Seletores isolados em `locators/`; fácil de atualizar sem tocar em procedures |
+| Seletores dos sistemas mudam sem aviso | Alta | Alto | Seletores isolados em `locators/`; fácil atualizar sem tocar em procedures |
 | Sistema-alvo fora do ar durante execução | Média | Médio | `SystemUnavailableError` capturado; resultado de falha exibido sem travar a UI |
 | Credenciais expiradas | Média | Alto | Verificação de `is_logged_in` antes de cada procedimento; alerta ao técnico |
 | Planilha com dados inválidos | Alta | Baixo | `DataLoader` valida schema antes de iniciar o lote |
@@ -356,12 +326,12 @@ Uma funcionalidade está **pronta** quando:
 
 ---
 
-## 15. Glossário
+## 12. Glossário
 
 | Termo | Definição |
 |-------|----------|
 | **Procedimento** | Unidade atômica de automação (ex: `add_user`) implementada como classe que herda `BaseProcedure` |
-| **Sistema** | Um dos 5 portais web gerenciados pelo Launcher, representado por um subpacote em `launcher/systems/` |
+| **Sistema** | Um dos 5 portais web gerenciados pelo Senna, representado por um subpacote em `senna/systems/` |
 | **Payload** | Conjunto de dados necessários para executar um procedimento (dataclass tipada) |
 | **BrowserContext** | Sessão isolada do Playwright — equivalente a um perfil de navegador separado por sistema |
 | **Result[T, E]** | Tipo que encapsula sucesso ou falha sem lançar exceção — garante que a UI nunca quebre por erro de automação |
@@ -369,373 +339,105 @@ Uma funcionalidade está **pronta** quando:
 | **Lote** | Execução sequencial de múltiplos registros importados de uma planilha CSV/XLSX |
 | **Audit Log** | Registro JSON imutável gerado a cada execução, contendo quem fez, o quê, quando e qual foi o resultado |
 
-## 16. Workflow Git
+---
 
-### 16.1 Fluxo Obrigatório de Desenvolvimento
+## 13. Workflow Git
+
+### 13.1 Fluxo Obrigatório
 
 Todo desenvolvimento deve seguir **estritamente** esta ordem:
 
-1 — Codificação  
-2 — Testes unitários  
-3 — Testes de integração  
-4 — Linter (Ruff)  
-5 — Commit (apenas se tudo passar)
+```
+Codificar → Testes unitários → Testes de integração → Ruff → Commit
+```
 
-Fluxo formal:
+Se qualquer etapa falhar: corrigir e repetir o ciclo. Commit é proibido antes de tudo passar.
 
-Codificar  
-↓  
-Rodar testes unitários  
-↓  
-Rodar testes de integração  
-↓  
-Rodar Ruff  
-↓  
-Se TODOS passarem → Commit  
-Se qualquer etapa falhar → Corrigir → Repetir ciclo  
+### 13.2 Regra de Commit
 
----
+Um commit só é permitido quando todos os testes unitários e de integração passam e Ruff não retorna erros.
 
-### 16.2 Regra de Commit
+### 13.3 Convenção de Commits
 
-Um commit só é permitido quando:
+Formato obrigatório: `<tipo>: <descrição curta>`
 
-- Todos os testes unitários passam
-- Todos os testes de integração passam
-- Ruff não retorna erros
-- O código executa corretamente
+| Tipo | Uso |
+|------|-----|
+| `feat` | nova automação ou funcionalidade |
+| `fix` | correção de erro |
+| `refactor` | reorganização interna sem mudança funcional |
+| `test` | novos testes ou melhoria de testes |
+| `chore` | ajustes técnicos |
+| `docs` | documentação |
 
-Se qualquer verificação falhar:
-
-O commit **é proibido**.
-
----
-
-### 16.3 Convenção de Commits
-
-Todos os commits devem seguir um prefixo padronizado.
-
-Formato obrigatório:
-
-<tipo>: <descrição curta>
-
-Opcional:
-
-<tipo>: <descrição curta>
-
-<descrição longa>
-
----
-
-### Tipos Permitidos
-
-feat      → nova automação ou funcionalidade  
-fix       → correção de erro  
-refactor  → reorganização interna sem mudança funcional  
-test      → novos testes ou melhoria de testes  
-chore     → ajustes técnicos  
-docs      → documentação  
-
----
-
-### Exemplos Válidos
-
+Exemplos válidos:
+```
 feat: add_user procedure for servicos_ti
-
 fix: handle timeout during login
-
 refactor: extract BrowserFactory from client
+```
 
-test: add unit tests for Result class
+Commits vagos (`fix stuff`, `update`, `changes`) são proibidos.
 
-chore: update pytest configuration
+### 13.4 Frequência
 
-docs: update workflow documentation
+Um commit deve representar **uma única mudança lógica**. Pequenos, frequentes e coerentes.
 
----
+### 13.5 Hook de Verificação
 
-### Exemplos Proibidos
-
-fix stuff  
-update  
-changes  
-test  
-misc  
-
-Commits vagos são proibidos.
+Configurar pre-commit hook executando `ruff check . && pytest`. Commit bloqueado automaticamente em caso de falha.
 
 ---
 
-### 16.4 Frequência de Commits
+## 14. Code Style
 
-Commits devem ser:
+### 14.1 Tipagem Forte
 
-- Pequenos
-- Frequentes
-- Coerentes
+Todo código Python deve usar type hints explícitos em parâmetros, retornos, atributos de classe e dataclasses. Retorno `None` também deve ser declarado.
 
-Regra recomendada:
+```python
+# Obrigatório
+def add_user(payload: UserPayload) -> Result[User, Error]: ...
 
-Um commit deve representar **uma única mudança lógica**.
+# Proibido
+def add_user(payload): ...
+```
 
-Evitar:
+Payloads devem ser modelados como dataclasses tipadas. Dicionários soltos são proibidos para dados críticos de execução.
 
-- Commits gigantes
-- Commits com múltiplos objetivos
-- Commits contendo código quebrado
-
----
-
-### 16.5 Hook de Verificação (Recomendado)
-
-Recomenda-se configurar pre-commit hook executando:
-
-ruff check .
-pytest
-
-Se qualquer comando falhar:
-
-O commit deve ser bloqueado automaticamente.
-
-## 17. Code Style e Loop Codar-Testar-Corrigir Headless
-
-O código deve ser previsível, tipado, grepável e validado antes de qualquer commit.
-
-Este projeto adota o ciclo obrigatório:
-
-Codificar → Testar → Corrigir → Validar → Commitar
-
-Nenhum commit é permitido antes da validação completa.
-
----
-
-### 17.1 Tipagem Forte Obrigatória
-
-Todo código Python deve usar type hints explícitos.
-
-Tipagem é obrigatória para:
-
-- Parâmetros de função
-- Valores de retorno
-- Atributos de classe
-- Dataclasses
-- Estruturas de dados
-
-Funções sem tipagem são proibidas.
-
-Exemplo obrigatório:
-
-def add_user(payload: UserPayload) -> Result[User, Error]:
-
-Exemplo proibido:
-
-def add_user(payload):
-    
-Toda função deve declarar tipo de retorno, inclusive quando retornar None.
-
-### 17.2 Payloads Tipados
-
-Payloads devem ser modelados como dataclasses tipadas.
-
-Dicionários soltos são proibidos para dados críticos de execução.
-
-Exemplo:
-
+```python
 @dataclass
 class UserPayload:
     name: str
     email: str
     profile: str
+```
 
-### 17.3 Estilo Grepável
+### 14.2 Nomenclatura Grepável
 
 Nomes devem ser significativos, únicos e fáceis de localizar por busca.
 
-Use nomes descritivos para classes, funções, variáveis e módulos.
+| Padrão | Exemplos ✅ | Exemplos 🚫 |
+|--------|-----------|------------|
+| Variáveis | `user_payload`, `login_response` | `data`, `obj`, `tmp`, `value` |
+| Classes | `UserPage`, `AddUserProcedure`, `BrowserFactory` | `Manager`, `Handler`, `Processor` |
+| Funções | `create_user`, `validate_payload`, `open_browser_context` | `do_it`, `handle`, `process` |
 
-Exemplos recomendados:
+### 14.3 Simplicidade Estrutural
 
-user_payload
-login_response
-audit_log_entry
-browser_context
-
-Exemplos proibidos:
-
-data
-obj
-tmp
-value
-result1
-
-Classes devem seguir o padrão DomínioFunção.
-
-Exemplos:
-
-UserPage
-LoginPage
-AddUserProcedure
-BrowserFactory
-
-Evite nomes genéricos como:
-
-Manager
-Handler
-Processor
-
-Funções devem representar ação clara.
-
-Exemplos:
-
-create_user
-validate_payload
-open_browser_context
-
-Evite nomes vagos como:
-
-do_it
-handle
-process
-
-### 17.4 Simplicidade Estrutural
-
-Código deve ser explícito e fácil de revisar.
-
-Evite:
-
-Funções gigantes
-Condições complexas
-Aninhamento profundo
-
-Prefira:
-
-Guard clauses
-Early return
-Funções pequenas e coesas
-
-### 17.5 Execução Headless Obrigatória
-
-Todos os testes devem rodar via CLI, sem interface gráfica.
-
-Nenhum teste pode depender de interação manual.
-
-Comando padrão de validação:
-
-ruff check . && pytest
-
-Se este comando falhar, a tarefa não está concluída.
-
-### 17.6 Ciclo Obrigatório de Trabalho
-
-Toda alteração deve seguir esta ordem:
-
-Codificar
-Rodar testes unitários
-Rodar testes de integração
-Rodar Ruff
-Corrigir falhas
-Repetir até tudo passar
-Commitar apenas depois da validação completa
-
-É proibido declarar sucesso sem executar a suíte de testes.
-
-### 17.7 Regra de Conclusão
-
-Uma tarefa só pode ser considerada concluída quando:
-
-Todos os testes unitários passaram
-Todos os testes de integração passaram
-Ruff não retornou erros
-O comportamento foi validado via CLI
-Nenhuma exceção não tratada permaneceu
-
-### 17.8 Convenção de Commits
-
-Commits devem seguir a convenção:
-
-<tipo>: <descrição curta>
-
-Tipos permitidos:
-
-feat → nova automação ou funcionalidade
-fix → correção de erro
-refactor → reorganização interna sem mudança funcional
-test → novos testes ou melhoria de testes
-chore → ajustes técnicos
-docs → documentação
-
-Exemplos válidos:
-
-feat: add_user procedure for servicos_ti
-fix: handle timeout during login
-refactor: extract BrowserFactory from client
-test: add unit tests for Result class
-chore: update pytest configuration
-docs: update workflow documentation
-
-Exemplos proibidos:
-
-fix stuff
-update
-changes
-test
-misc
-
-Commits vagos são proibidos.
-
-### 17.9 Regra de Commit
-
-Um commit só é permitido quando:
-
-Todos os testes unitários passam
-Todos os testes de integração passam
-Ruff não retorna erros
-O código executa corretamente via CLI
-
-Se qualquer verificação falhar, o commit é proibido.
-
-### 17.10 Hook de Verificação
-
-O repositório deve usar pre-commit hook para bloquear commits inválidos.
-
-O hook deve executar:
-
-ruff check .
-pytest
-
-Se qualquer comando falhar, o commit deve ser bloqueado.
-
-## 18. Riscos Operacionais
-
-Os riscos do projeto devem ser tratados por regra de comportamento.
-
-Eles são divididos em três grupos:
-
-- Sempre fazer
-- Perguntar antes
-- NUNCA FAZER
+Prefira guard clauses, early return e funções pequenas e coesas. Evite funções gigantes, condições complexas e aninhamento profundo.
 
 ---
 
-### 18.1 Sempre fazer
+## 15. Boundaries
 
-- Sempre executar a suíte completa de testes antes de declarar sucesso.
-- Sempre rodar `ruff check .` antes de commitar.
-- Sempre rodar `pytest` antes de commitar.
-- Sempre validar mudanças via CLI, sem interface gráfica.
-- Sempre usar type hints explícitos.
-- Sempre tipar retorno de funções.
-- Sempre registrar auditoria por execução, inclusive em falhas.
-- Sempre tratar erros sem deixar exceções não tratadas chegarem à UI.
-- Sempre manter nomes significativos, únicos e grepáveis.
-- Sempre manter payloads como dataclasses tipadas.
-- Sempre preservar isolamento por sistema e por `BrowserContext`.
-- Sempre corrigir falhas antes de prosseguir.
+### ✅ Sempre
+- Registrar auditoria por execução, inclusive em falhas.
+- Tratar erros sem deixar exceções não tratadas chegarem à UI.
+- Preservar isolamento por sistema e por `BrowserContext`.
+- Corrigir falhas antes de prosseguir para a próxima tarefa.
 
----
-
-### 18.2 Perguntar antes
-
+### ⚠️ Perguntar antes
 - Alterar arquitetura base.
 - Adicionar novo sistema fora do padrão previsto.
 - Mudar o contrato de `Result[T, E]`.
@@ -747,19 +449,10 @@ Eles são divididos em três grupos:
 - Mudar o padrão de naming do projeto.
 - Relaxar regra de tipagem ou lint.
 
----
-
-### 18.3 NUNCA FAZER
-
-- Nunca commitar código sem passar em testes.
-- Nunca commitar código com erro de Ruff.
-- Nunca declarar tarefa concluída sem rodar testes.
-- Nunca depender de GUI para validar comportamento.
-- Nunca usar dicionários soltos onde houver contrato tipado.
-- Nunca expor credenciais em logs, UI ou código.
-- Nunca gravar segredo em arquivo versionado.
-- Nunca criar nomes genéricos como `data`, `tmp`, `obj`, `handle` ou `manager`.
-- Nunca deixar exceção não tratada chegar à interface.
-- Nunca alterar comportamento sem atualizar testes.
-- Nunca introduzir dependência manual para validação automática.
-- Nunca permitir commit com código quebrado.
+### 🚫 Nunca
+- Expor credenciais em logs, UI ou código.
+- Gravar segredo em arquivo versionado.
+- Usar dicionários soltos onde houver contrato tipado.
+- Criar nomes genéricos (`data`, `tmp`, `obj`, `handle`, `manager`).
+- Deixar exceção não tratada chegar à interface.
+- Alterar comportamento sem atualizar os testes correspondentes.
