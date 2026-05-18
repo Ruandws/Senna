@@ -11,12 +11,12 @@ COMO: usa o fixture `tmp_path` do pytest para criar um diretório temporário
 """
 
 from __future__ import annotations
+
 import json
 import logging
 from pathlib import Path
-import pytest
-from senna.core.logger import AuditLogger, app_logger
 
+from senna.core.logger import AuditLogger, app_logger
 
 # =============================================================================
 # app_logger

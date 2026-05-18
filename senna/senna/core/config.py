@@ -1,10 +1,13 @@
-# lê settings.toml e variáveis de ambiente; instancia objetos para imports em outros arquivos, e expõe objeto Settings
+# lê settings.toml e variáveis de ambiente;
+# instancia objetos para imports em outros arquivos, e expõe objeto Settings
 from __future__ import annotations
+
+import os
 import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
+
 from dotenv import load_dotenv
-import os
 
 _ROOT = Path(__file__).resolve().parents[2]
 _ENV_PATH = _ROOT / ".env"

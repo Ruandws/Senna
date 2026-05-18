@@ -10,11 +10,11 @@ COMO: instancia Result via .ok() e .fail(), verifica flags e propriedades;
 
 from __future__ import annotations
 
-import pytest
 from dataclasses import FrozenInstanceError
 
-from senna.core.result import Result
+import pytest
 
+from senna.core.result import Result
 
 # =============================================================================
 # Result.ok — caminho de sucesso

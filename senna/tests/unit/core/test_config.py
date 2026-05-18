@@ -12,9 +12,12 @@ COMO: usa o fixture `monkeypatch` do pytest para injetar/remover variáveis
 """
 
 from __future__ import annotations
-import pytest
-from senna.core.config import Settings, _is_true
 
+from pathlib import Path
+
+import pytest
+
+from senna.core.config import Settings, _is_true
 
 # =============================================================================
 # _is_true — helper privado
@@ -47,7 +50,9 @@ def test_is_true(value: str, expected: bool) -> None:
 # =============================================================================
 
 
-def test_settings_load_returns_settings_instance(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_settings_load_returns_settings_instance(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Settings.load() deve retornar um objeto Settings sem levantar exceção."""
     monkeypatch.delenv("DEBUG_BROWSER", raising=False)
     result = Settings.load()
@@ -100,9 +105,10 @@ def test_settings_default_data_dirs(monkeypatch: pytest.MonkeyPatch) -> None:
     assert s.data.temp_dir == "data/temp"
 
 
-def test_settings_load_with_toml_file(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_settings_load_with_toml_file(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     """settings.toml deve sobrescrever defaults."""
-    from pathlib import Path
     toml_file = tmp_path / "settings.toml"
     toml_file.write_text(
         "[browser]\ntimeout_ms = 30000\n"

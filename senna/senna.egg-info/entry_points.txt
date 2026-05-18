@@ -1,0 +1,2 @@
+[console_scripts]
+senna = senna.main:main

@@ -1,4 +1,5 @@
-# hierarquia de erros: LoginError, SelectorNotFoundError, SystemUnavailableError, ConnectivityError
+# hierarquia de erros: LoginError, SelectorNotFoundError,
+# SystemUnavailableError, ConnectivityError
 
 from __future__ import annotations
 

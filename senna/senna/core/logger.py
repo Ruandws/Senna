@@ -71,8 +71,8 @@ class AuditLogger:
             "success": success,
             "detail": detail,
         }
-
-        log_file = self._audit_dir / f"{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.jsonl"
+        date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        log_file = self._audit_dir / f"{date_str}.jsonl"
 
         with log_file.open("a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")

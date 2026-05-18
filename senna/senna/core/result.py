@@ -1,6 +1,7 @@
 # tipo Result[T, E]: encapsula sucesso/falha sem lançar exceção na UI
 
 from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Callable, Generic, TypeVar
 

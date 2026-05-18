@@ -11,9 +11,9 @@ COMO: instancia cada dataclass com dados válidos e inválidos;
 
 from __future__ import annotations
 
+from dataclasses import FrozenInstanceError
 from datetime import date
 from pathlib import Path
-from dataclasses import FrozenInstanceError
 
 import pytest
 

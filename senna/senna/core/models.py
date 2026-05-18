@@ -29,7 +29,8 @@ class ServicoesTiCreateUserPayload(BaseUserPayload):
     estende BaseUserPayload com campos do formulário do portal.
     Como: UI monta este payload; AddUserProcedure o passa ao ServicoesTiClient.
 
-    Campos: Tipo, Nome*, CPF*, E-mail alternativo, Empresa, Cargo, Gerente, Data de expiração.
+    Campos: Tipo, Nome*, CPF*, E-mail alternativo, Empresa, Cargo,
+            Gerente, Data de expiração.
     (*) herdados de BaseUserPayload.
     """
 
@@ -44,8 +45,10 @@ class ServicoesTiCreateUserPayload(BaseUserPayload):
 @dataclass(frozen=True)
 class ServicoesTiModelingPayload(BaseUserPayload):
     """
-    O quê: estende BaseUserPayload com escritório, login e campos corporativos. - Usado pela ModelingProcedure
-    Campos: Tipo, Escritório, Nome*, Login, CPF*, E-mail alternativo, Empresa, Cargo, Gerente, Data de expiração.
+    O quê: estende BaseUserPayload com escritório, login e campos
+           corporativos. - Usado pela ModelingProcedure
+    Campos: Tipo, Escritório, Nome*, Login, CPF*, E-mail alternativo,
+            Empresa, Cargo, Gerente, Data de expiração.
     """
 
     user_type: str
@@ -74,7 +77,9 @@ class ServicoesTiExtendAccessPayload(BaseAccessPayload):
 class ServicoesTiCpfCheckPayload:
     """
     O quê: payload para verificação avulsa de um CPF ou lote via planilha.
-    Como: se `cpf` preenchido, consulta unitária. Se `spreadsheet_path` fornecido,DataLoader processa o lote. Exatamente um dos dois deve estar presente.
+    Como: se `cpf` preenchido, consulta unitária. Se `spreadsheet_path`
+          fornecido, DataLoader processa o lote. Exatamente um dos dois
+          deve estar presente.
     Campos: CPF (avulso) | caminho da planilha (lote).
     """
 
@@ -83,7 +88,10 @@ class ServicoesTiCpfCheckPayload:
 
     def __post_init__(self) -> None:
         if self.cpf is None and self.spreadsheet_path is None:
-            raise ValueError("Informe 'cpf' para consulta avulsa ou 'spreadsheet_path' para lote.")
+            raise ValueError(
+                "Informe 'cpf' para consulta avulsa ou "
+                "'spreadsheet_path' para lote."
+            )
         if self.cpf is not None and self.spreadsheet_path is not None:
             raise ValueError("Informe apenas 'cpf' ou 'spreadsheet_path', não ambos.")
 
