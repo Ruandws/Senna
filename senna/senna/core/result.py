@@ -1,47 +1,102 @@
-# tipo Result[T, E]: encapsula sucesso/falha sem lançar exceção na UI
+"""
+Padrão Result[T, E] do Senna.
+
+Toda operação que pode falhar retorna Result — nunca levanta exceção para a UI.
+A UI lê result.success para decidir o que exibir (§7.3).
+
+Uso — produzindo resultados:
+
+    from senna.core.result import Result
+
+    def add_user(payload: UserPayload) -> Result[str, str]:
+        try:
+            ...
+            return Result.ok("Usuário criado com sucesso.")
+        except ExecutionError as exc:
+            return Result.fail(str(exc))
+
+Uso — consumindo resultados:
+
+    result = orchestrator.run(system_id, procedure_id, payload)
+
+    if result.success:
+        show_success(result.value)
+    else:
+        show_error(result.error)
+"""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Generic, TypeVar
+from typing import Generic, TypeVar
 
-T = TypeVar("T")
-E = TypeVar("E")
+T = TypeVar("T")  # tipo do valor em caso de sucesso
+E = TypeVar("E")  # tipo do erro em caso de falha
 
 
 @dataclass(frozen=True)
 class Result(Generic[T, E]):
-    _value: T | None
-    _error: E | None
+    """
+    Encapsula o resultado de uma operação que pode falhar.
+
+    Exatamente um dos dois campos é preenchido:
+      value — presente quando success=True
+      error — presente quando success=False
+
+    Use os construtores de classe Result.ok() e Result.fail()
+    em vez de instanciar diretamente.
+    """
+
     success: bool
+    value: T | None
+    error: E | None
+
+    # ---------------------------------------------------------------------------
+    # Construtores
+    # ---------------------------------------------------------------------------
 
     @classmethod
-    def ok(cls, value: T) -> "Result[T, E]":
-        return cls(_value=value, _error=None, success=True)
+    def ok(cls, value: T) -> Result[T, E]:
+        """Constrói um resultado de sucesso."""
+        return cls(success=True, value=value, error=None)
 
     @classmethod
-    def fail(cls, error: E) -> "Result[T, E]":
-        return cls(_value=None, _error=error, success=False)
+    def fail(cls, error: E) -> Result[T, E]:
+        """Constrói um resultado de falha."""
+        return cls(success=False, value=None, error=error)
 
-    @property
-    def value(self) -> T:
+    # ---------------------------------------------------------------------------
+    # Acesso seguro
+    # ---------------------------------------------------------------------------
+
+    def unwrap(self) -> T:
+        """
+        Retorna value se success=True.
+        Levanta RuntimeError se chamado em resultado de falha.
+
+        Use apenas em contextos onde o sucesso já foi verificado,
+        como testes unitários ou após checagem explícita de result.success.
+        """
         if not self.success:
-            raise ValueError("Result é falha — acesse 'error', não 'value'.")
-        return self._value  # type: ignore[return-value]
+            raise RuntimeError(f"Chamada a unwrap() em Result de falha. Erro: {self.error!r}")
+        return self.value  # type: ignore[return-value]
 
-    @property
-    def error(self) -> E:
+    def unwrap_error(self) -> E:
+        """
+        Retorna error se success=False.
+        Levanta RuntimeError se chamado em resultado de sucesso.
+        """
         if self.success:
-            raise ValueError("Result é sucesso — acesse 'value', não 'error'.")
-        return self._error  # type: ignore[return-value]
+            raise RuntimeError(
+                f"Chamada a unwrap_error() em Result de sucesso. Valor: {self.value!r}"
+            )
+        return self.error  # type: ignore[return-value]
 
-    def map(self, fn: Callable[[T], T]) -> "Result[T, E]":
-        """Aplica fn ao valor se sucesso. Falha passa direto."""
-        if self.success:
-            return Result.ok(fn(self.value))
-        return self
+    # ---------------------------------------------------------------------------
+    # Representação
+    # ---------------------------------------------------------------------------
 
     def __repr__(self) -> str:
         if self.success:
-            return f"Result.ok({self._value!r})"
-        return f"Result.fail({self._error!r})"
+            return f"Result.ok({self.value!r})"
+        return f"Result.fail({self.error!r})"
