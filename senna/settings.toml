@@ -1,0 +1,26 @@
+# settings.toml — Valores padrão do Senna
+# Este arquivo É versionado. Não coloque segredos aqui.
+# Credenciais e URLs de ambiente ficam exclusivamente no .env
+
+# ---------------------------------------------------------------------------
+# Playwright
+# ---------------------------------------------------------------------------
+[browser]
+timeout        = 30000   # ms — timeout padrão por operação (alinhado RNF-01: 60s por procedimento)
+navigation_timeout = 60000   # ms — timeout para navegação entre páginas
+headless       = true    # sobrescrito por DEBUG_BROWSER=true no .env
+
+# ---------------------------------------------------------------------------
+# Execução em lote
+# ---------------------------------------------------------------------------
+[batch]
+max_rows       = 500     # limite de linhas por planilha para evitar sobrecarga
+output_dir     = "data/output"
+temp_dir       = "data/temp"
+
+# ---------------------------------------------------------------------------
+# Logs de auditoria
+# ---------------------------------------------------------------------------
+[audit]
+log_dir        = "logs/audit"
+rotation_days  = 90      # retenção local dos logs em dias
