@@ -32,6 +32,8 @@ O técnico de TI, ao receber um chamado, abre o Senna, seleciona o sistema-alvo,
 | Automação Web | Playwright | 1.58 |
 | Interface Gráfica | CustomTkinter | 5.2.2 |
 | Processamento de Dados | Pandas | 3.0.1 |
+| Manipulação de Planilhas | openpyxl | >=3.1.5 |
+| Variáveis de Ambiente | python-dotenv | >=1.0 |
 | Linter | Ruff | latest |
 | Versionamento | Git | — |
 | Gerenciador de Projeto | pyproject.toml | PEP 517 |
@@ -169,10 +171,19 @@ Cada sistema possui `pages/` com classes que encapsulam ações de tela e `locat
 ```
 senna/
 ├── senna/
-│   ├── core/          # ABCs, Orchestrator, Models, Config, Logger, Result
-│   ├── interface/     # UI CustomTkinter + formulários dinâmicos
-│   ├── systems/
-│   │   ├── __init__.py        # AVAILABLE_SYSTEMS
+│   ├── core/                  # Core da aplicação
+│   │   ├── base_procedure.py  # Contrato base para procedimentos
+│   │   ├── base_system.py     # Contrato base para sistemas
+│   │   ├── config.py          # Gerenciamento de configurações e .env
+│   │   ├── exceptions.py      # Hierarquia de exceções customizadas
+│   │   ├── logger.py          # Logger estruturado e auditoria
+│   │   ├── models.py          # Modelos de dados e payloads (dataclasses)
+│   │   ├── orchestrator.py    # Orquestrador de sistemas e procedimentos
+│   │   └── result.py          # Padrão de retorno Result[T, E]
+│   ├── interface/             # UI CustomTkinter
+│   │   ├── forms.py           # Formulários dinâmicos
+│   │   └── ui_main.py         # Tela inicial e seleção de rotinas
+│   ├── systems/               # Portais suportados e lógica específica
 │   │   ├── servicos_ti/       # S1 — Portal de serviços de TI corporativo
 │   │   │   ├── procedures/    # add_user, remove_user, extend_access, grant_profile
 │   │   │   ├── pages/         # login_page, user_page
@@ -181,7 +192,10 @@ senna/
 │   │   ├── integra/           # S3 — Sistema de integração de dados (mesma estrutura)
 │   │   ├── s4/                # S4 — a definir (mesma estrutura)
 │   │   └── s5/                # S5 — a definir (mesma estrutura)
-│   └── utils/         # BrowserFactory, DataLoader
+│   ├── utils/                 # Ferramentas auxiliares
+│   │   ├── browser_factory.py # Gerenciamento do Playwright e BrowserContext
+│   │   └── data_loader.py     # Leitura e validação de planilhas em lote
+│   └── main.py                # Entry point da aplicação
 ├── tests/
 │   ├── unit/          # sem rede, sem browser — lógica pura
 │   ├── integration/   # Playwright contra staging
@@ -194,7 +208,14 @@ senna/
 ├── docs/
 │   ├── architecture/  # ADRs
 │   └── procedures/    # guias de uso para o técnico
-└── logs/audit/        # JSON imutável de auditoria (gitignored)
+├── logs/audit/        # JSON imutável de auditoria (gitignored)
+├── .env.example       # Template de variáveis de ambiente
+├── .gitignore         # Arquivos ignorados pelo repositório
+├── pyproject.toml     # Configuração do projeto e dependências
+├── README.md          # Visão geral e instruções iniciais
+├── requirements.md    # Justificativas das dependências
+├── ruff.toml          # Configurações do linter Ruff
+└── SPEC.md            # Especificação de requisitos (Fonte da verdade)
 ```
 
 ---
