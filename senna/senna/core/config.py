@@ -1,92 +1,142 @@
-# lê settings.toml e variáveis de ambiente;
-# instancia objetos para imports em outros arquivos, e expõe objeto Settings
+"""
+Gerenciamento de configurações do Senna.
+
+Estratégia de carregamento (ordem de precedência, menor → maior):
+  1. settings.toml  — valores padrão versionados (não contém segredos)
+  2. .env           — sobrescreve apenas variáveis sensíveis/ambiente-específicas
+
+Variáveis obrigatórias ausentes levantam MissingCredentialError na importação,
+impedindo que a aplicação inicialize em estado inválido (RF-06).
+"""
+
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-import os
 from pathlib import Path
 import tomllib
 
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 
-_ROOT = Path(__file__).resolve().parents[2]
-_ENV_PATH = _ROOT / ".env"
-_SETTINGS_PATH = _ROOT / "settings.toml"
+from senna.core.exceptions import MissingCredentialError
 
-load_dotenv(_ENV_PATH)
+# ---------------------------------------------------------------------------
+# Caminhos base
+# ---------------------------------------------------------------------------
+
+_ROOT: Path = Path(__file__).resolve().parents[2]  # raiz do repositório
+_SETTINGS_FILE: Path = _ROOT / "settings.toml"
+_ENV_FILE: Path = _ROOT / ".env"
+
+# ---------------------------------------------------------------------------
+# Variáveis obrigatórias por sistema
+# A ausência de qualquer uma delas na inicialização levanta MissingCredentialError.
+# ---------------------------------------------------------------------------
+
+_REQUIRED_CREDENTIALS: tuple[str, ...] = (
+    "SERVICOS_TI_URL",
+    "SERVICOS_TI_USER",
+    "SERVICOS_TI_PASSWORD",
+    "AGHUX_URL",
+    "AGHUX_USER",
+    "AGHUX_PASSWORD",
+    "INTEGRA_URL",
+    "INTEGRA_USER",
+    "INTEGRA_PASSWORD",
+)
 
 
-def _load_toml(path: Path) -> dict:
-    if not path.exists():
+# ---------------------------------------------------------------------------
+# Carregamento
+# ---------------------------------------------------------------------------
+
+
+def _load_settings() -> dict[str, object]:
+    """Lê settings.toml; retorna dict vazio se o arquivo não existir."""
+    if not _SETTINGS_FILE.exists():
         return {}
-    with path.open("rb") as f:
+    with _SETTINGS_FILE.open("rb") as f:
         return tomllib.load(f)
 
 
-@dataclass
-class BrowserSettings:
-    headless: bool = True
-    timeout_ms: int = 60_000
-    slow_mo_ms: int = 0
+def _load_env() -> dict[str, str | None]:
+    """Lê .env sem poluir os os.environ do processo."""
+    if not _ENV_FILE.exists():
+        return {}
+    return dotenv_values(_ENV_FILE)
 
 
-@dataclass
-class LogSettings:
-    level: str = "INFO"
-    audit_dir: str = "logs/audit"
+def _merge(settings: dict[str, object], env: dict[str, str | None]) -> dict[str, object]:
+    """
+    Mescla settings.toml (base) com .env (sobrescreve).
+    Valores None do .env (variável declarada mas vazia) são ignorados.
+    """
+    merged: dict[str, object] = dict(settings)
+    for key, value in env.items():
+        if value is not None:
+            merged[key] = value
+    return merged
 
 
-@dataclass
-class DataSettings:
-    input_dir: str = "data/input"
-    output_dir: str = "data/output"
-    temp_dir: str = "data/temp"
-
-
-@dataclass
-class Settings:  # Instanciado, qualquer outro arquivo só importa e usa
-    browser: BrowserSettings = field(default_factory=BrowserSettings)
-    log: LogSettings = field(default_factory=LogSettings)
-    data: DataSettings = field(default_factory=DataSettings)
-    debug_browser: bool = False
-
-    @classmethod
-    def load(cls) -> "Settings":
-        raw = _load_toml(_SETTINGS_PATH)
-
-        browser = BrowserSettings(
-            headless=not _is_true(os.getenv("DEBUG_BROWSER", "false")),
-            timeout_ms=int(raw.get("browser", {}).get("timeout_ms", 60_000)),
-            slow_mo_ms=int(raw.get("browser", {}).get("slow_mo_ms", 0)),
+def _validate_credentials(config: dict[str, object]) -> None:
+    """
+    Verifica presença de todas as credenciais obrigatórias.
+    Falha rápido na importação — nunca na metade de uma automação.
+    """
+    missing: list[str] = [key for key in _REQUIRED_CREDENTIALS if not config.get(key)]
+    if missing:
+        raise MissingCredentialError(
+            f"Credenciais obrigatórias ausentes ou vazias: {', '.join(missing)}. "
+            f"Verifique o arquivo .env na raiz do projeto."
         )
 
-        log = LogSettings(
-            level=raw.get("log", {}).get("level", "INFO"),
-            audit_dir=raw.get("log", {}).get("audit_dir", "logs/audit"),
-        )
 
-        data = DataSettings(
-            input_dir=raw.get("data", {}).get("input_dir", "data/input"),
-            output_dir=raw.get("data", {}).get("output_dir", "data/output"),
-            temp_dir=raw.get("data", {}).get("temp_dir", "data/temp"),
-        )
-
-        return cls(
-            browser=browser,
-            log=log,
-            data=data,
-            debug_browser=_is_true(os.getenv("DEBUG_BROWSER", "false")),
-        )
-
-    def require_env(self, *keys: str) -> None:
-        """Levanta EnvironmentError se qualquer chave estiver ausente no ambiente."""
-        missing = [k for k in keys if not os.getenv(k)]
-        if missing:
-            raise EnvironmentError(f"Credenciais obrigatórias ausentes: {', '.join(missing)}")
+# ---------------------------------------------------------------------------
+# Config — ponto de acesso único
+# ---------------------------------------------------------------------------
 
 
-def _is_true(value: str) -> bool:
-    return value.strip().lower() in {"1", "true", "yes"}
+class Config:
+    """
+    Ponto de acesso único às configurações do Senna.
+
+    Uso:
+        from senna.core.config import config
+
+        url = config.get("SERVICOS_TI_URL")
+        timeout = config.get("browser_timeout", 30)
+    """
+
+    def __init__(self) -> None:
+        _settings = _load_settings()
+        _env = _load_env()
+        self._data: dict[str, object] = _merge(_settings, _env)
+        _validate_credentials(self._data)
+
+    def get(self, key: str, default: object = None) -> object:
+        """Retorna o valor da chave ou o default fornecido."""
+        return self._data.get(key, default)
+
+    def require(self, key: str) -> object:
+        """
+        Retorna o valor da chave.
+        Levanta MissingCredentialError se ausente — útil fora do conjunto
+        de credenciais obrigatórias definido em _REQUIRED_CREDENTIALS.
+        """
+        value = self._data.get(key)
+        if not value:
+            raise MissingCredentialError(
+                f"Configuração obrigatória ausente: '{key}'. Verifique settings.toml ou .env."
+            )
+        return value
+
+    def debug_browser(self) -> bool:
+        """Retorna True se DEBUG_BROWSER=true estiver definido (Restrição R2)."""
+        return str(self._data.get("DEBUG_BROWSER", "false")).lower() == "true"
+
+    def __repr__(self) -> str:
+        keys = list(self._data.keys())
+        return f"Config(keys={keys})"
 
 
-settings: Settings = Settings.load()
+# Instância única — importar sempre desta forma:
+#   from senna.core.config import config
+config: Config = Config()

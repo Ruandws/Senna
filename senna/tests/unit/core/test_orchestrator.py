@@ -1,3 +1,15 @@
+"""
+Testes unitários para senna.core.orchestrator.Orchestrator
+
+O QUÊ: valida o orquestrador que coordena sistema + procedimento + browser.
+PARA QUÊ: garantir que o Orchestrator instancia, valida, executa e registra
+          auditoria corretamente — inclusive em cenários de falha e erro.
+COMO: usa MagicMock para sistema, procedimento, browser_factory e audit_logger.
+      Todos os caminhos são testados sem I/O real — 100% em memória.
+"""
+
+from __future__ import annotations
+
 import getpass
 from unittest.mock import MagicMock, patch
 
@@ -8,6 +20,10 @@ from senna.core.base_system import BaseSystem
 from senna.core.exceptions import OrchestratorError
 from senna.core.orchestrator import Orchestrator
 from senna.core.result import Result
+
+# =========================================================================
+# Fixtures
+# =========================================================================
 
 
 @pytest.fixture
@@ -38,6 +54,11 @@ def orchestrator(mock_system: MagicMock, mock_procedure: MagicMock) -> Orchestra
             yield Orchestrator()
 
 
+# =========================================================================
+# get_system
+# =========================================================================
+
+
 def test_get_system_success(orchestrator: Orchestrator, mock_system: MagicMock) -> None:
     assert orchestrator.get_system("sys1") == mock_system
 
@@ -45,6 +66,11 @@ def test_get_system_success(orchestrator: Orchestrator, mock_system: MagicMock) 
 def test_get_system_not_found(orchestrator: Orchestrator) -> None:
     with pytest.raises(OrchestratorError, match="Sistema 'sys2' não registrado"):
         orchestrator.get_system("sys2")
+
+
+# =========================================================================
+# get_procedure
+# =========================================================================
 
 
 def test_get_procedure_success(orchestrator: Orchestrator, mock_procedure: MagicMock) -> None:
@@ -61,6 +87,11 @@ def test_get_procedure_not_found(orchestrator: Orchestrator) -> None:
         orchestrator.get_procedure("sys1", "proc2")
 
 
+# =========================================================================
+# list_systems / list_procedures
+# =========================================================================
+
+
 def test_list_systems(orchestrator: Orchestrator) -> None:
     assert orchestrator.list_systems() == ["sys1"]
 
@@ -68,6 +99,11 @@ def test_list_systems(orchestrator: Orchestrator) -> None:
 def test_list_procedures(orchestrator: Orchestrator) -> None:
     assert orchestrator.list_procedures("sys1") == ["proc1"]
     assert orchestrator.list_procedures("sys2") == []
+
+
+# =========================================================================
+# run — caminho feliz
+# =========================================================================
 
 
 @patch("senna.core.orchestrator.browser_factory")
@@ -99,8 +135,15 @@ def test_run_success(
     mock_audit_logger.log_execution.assert_called_once()
 
 
+# =========================================================================
+# run — login necessário
+# =========================================================================
+
+
 @patch("senna.core.orchestrator.browser_factory")
+@patch("senna.core.orchestrator.audit_logger")
 def test_run_needs_login(
+    mock_audit_logger: MagicMock,
     mock_browser_factory: MagicMock,
     orchestrator: Orchestrator,
     mock_system: MagicMock,
@@ -114,6 +157,12 @@ def test_run_needs_login(
     assert result.success is True
     mock_system.login.assert_called_once()
     mock_procedure.execute.assert_called_once()
+    mock_audit_logger.log_execution.assert_called_once()
+
+
+# =========================================================================
+# run — falhas antes do try/finally (sem audit log)
+# =========================================================================
 
 
 def test_run_system_not_found(orchestrator: Orchestrator) -> None:
@@ -130,8 +179,15 @@ def test_run_validation_fails(orchestrator: Orchestrator, mock_procedure: MagicM
     mock_procedure.execute.assert_not_called()
 
 
+# =========================================================================
+# run — falhas dentro do try/finally (com audit log)
+# =========================================================================
+
+
 @patch("senna.core.orchestrator.browser_factory")
+@patch("senna.core.orchestrator.audit_logger")
 def test_run_login_fails(
+    mock_audit_logger: MagicMock,
     mock_browser_factory: MagicMock,
     orchestrator: Orchestrator,
     mock_system: MagicMock,
@@ -146,10 +202,13 @@ def test_run_login_fails(
     assert "Falha no login" in str(result.error)
     assert "Credenciais inválidas" in str(result.error)
     mock_procedure.execute.assert_not_called()
+    mock_audit_logger.log_execution.assert_called_once()
 
 
 @patch("senna.core.orchestrator.browser_factory")
+@patch("senna.core.orchestrator.audit_logger")
 def test_run_unexpected_error(
+    mock_audit_logger: MagicMock,
     mock_browser_factory: MagicMock,
     orchestrator: Orchestrator,
     mock_procedure: MagicMock,
@@ -164,10 +223,13 @@ def test_run_unexpected_error(
     # Deve garantir que logout e close_context são chamados
     mock_system.logout.assert_called_once()
     mock_browser_factory.close_context.assert_called_once_with("sys1")
+    mock_audit_logger.log_execution.assert_called_once()
 
 
 @patch("senna.core.orchestrator.browser_factory")
+@patch("senna.core.orchestrator.audit_logger")
 def test_run_logout_error_does_not_fail_execution(
+    mock_audit_logger: MagicMock,
     mock_browser_factory: MagicMock,
     orchestrator: Orchestrator,
     mock_system: MagicMock,
@@ -180,6 +242,12 @@ def test_run_logout_error_does_not_fail_execution(
     assert result.success is True
     assert result.value == "Sucesso"
     mock_browser_factory.close_context.assert_called_once_with("sys1")
+    mock_audit_logger.log_execution.assert_called_once()
+
+
+# =========================================================================
+# run — audit log — campos corretos
+# =========================================================================
 
 
 @patch("senna.core.orchestrator.browser_factory")
@@ -206,3 +274,22 @@ def test_run_audit_log_fields(
     assert audit_entry.success is True
     assert audit_entry.payload_keys == ["campo1", "campo2"]
     assert audit_entry.error is None
+
+
+@patch("senna.core.orchestrator.browser_factory")
+@patch("senna.core.orchestrator.audit_logger")
+def test_run_audit_log_records_failure(
+    mock_audit_logger: MagicMock,
+    mock_browser_factory: MagicMock,
+    orchestrator: Orchestrator,
+    mock_procedure: MagicMock,
+) -> None:
+    """Audit log deve registrar success=False e error quando a execução falha."""
+    mock_procedure.execute.side_effect = RuntimeError("Falha na automação")
+
+    orchestrator.run("sys1", "proc1", object())
+
+    audit_entry = mock_audit_logger.log_execution.call_args[0][0]
+    assert audit_entry.success is False
+    assert audit_entry.error is not None
+    assert "Falha na automação" in str(audit_entry.error)

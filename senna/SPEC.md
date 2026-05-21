@@ -89,7 +89,7 @@ Procedimentos disponíveis (aplicam-se a todos os sistemas que os suportem; disp
 | RNF-02 | Feedback visual durante execução | Indicador de progresso em toda execução |
 | RNF-03 | Tratamento de exceções | Capturadas e registradas sem travar a UI |
 | RNF-04 | Isolamento de sistema | Sem alteração de código fora do subpacote do sistema |
-| RNF-05 | Qualidade de código | Zero erros Ruff; cobertura de testes ≥ 80% |
+| RNF-05 | Qualidade de código | Zero erros Ruff; cobertura de testes ≥ 100% |
 | RNF-06 | Compatibilidade | Windows 10+ |
 | RNF-07 | Segurança de credenciais | Apenas em `.env`, nunca em código ou logs |
 
@@ -225,15 +225,15 @@ senna/
 ### Fase 0 — Fundação (Sprint 1)
 **Objetivo**: infraestrutura funcionando, zero lógica de negócio.
 
-- [ ] `0.1` Configurar `pyproject.toml`: dependências, entry point `senna.main:main`, config pytest e Ruff.
-- [ ] `0.2` Configurar `ruff.toml` com regras E, F, I, ANN básicas.
-- [ ] `0.3` Implementar `core/config.py`: leitura de `.env` + `settings.toml` com valores padrão.
-- [ ] `0.4` Implementar `core/logger.py`: logger estruturado (JSON) + `audit_logger` separado.
-- [ ] `0.5` Implementar `core/result.py`: tipo `Result[T, E]` genérico.
-- [ ] `0.6` Implementar `core/exceptions.py`: hierarquia de erros.
-- [ ] `0.7` Implementar `core/models.py`: dataclasses `UserPayload`, `ProfilePayload`, `AccessPayload`.
-- [ ] `0.8` Implementar `utils/browser_factory.py`: abre/fecha `BrowserContext` isolado por sistema.
-- [ ] `0.9` Testes unitários para `result.py`, `models.py`, `exceptions.py`.
+- [x] `0.1` Configurar `pyproject.toml`: dependências, entry point `senna.main:main`, config pytest e Ruff.
+- [x] `0.2` Configurar `ruff.toml` com regras E, F, I, ANN básicas.
+- [x] `0.3` Implementar `core/config.py`: leitura de `.env` + `settings.toml` com valores padrão.
+- [x] `0.4` Implementar `core/logger.py`: logger estruturado (JSON) + `audit_logger` separado.
+- [x] `0.5` Implementar `core/result.py`: tipo `Result[T, E]` genérico.
+- [x] `0.6` Implementar `core/exceptions.py`: hierarquia de erros.
+- [x] `0.7` Implementar `core/models.py`: dataclasses `UserPayload`, `ProfilePayload`, `AccessPayload`.
+- [x] `0.8` Implementar `utils/browser_factory.py`: abre/fecha `BrowserContext` isolado por sistema.
+- [x] `0.9` Testes unitários para `result.py`, `models.py`, `exceptions.py`.
 
 **Critério de saída**: `pytest tests/unit/` 100% verde; `ruff check .` zero erros.
 
@@ -242,11 +242,11 @@ senna/
 ### Fase 1 — Contratos e Orquestração (Sprint 2)
 **Objetivo**: esqueleto de extensão funcionando.
 
-- [ ] `1.1` Implementar `core/base_system.py`: ABC com `login`, `logout`, `is_logged_in`.
-- [ ] `1.2` Implementar `core/base_procedure.py`: ABC com `execute`, `validate`.
-- [ ] `1.3` Implementar `core/orchestrator.py`: `REGISTRY`, `get_procedure()`, `get_system()`.
-- [ ] `1.4` Implementar `systems/__init__.py`: `AVAILABLE_SYSTEMS` mapeando chaves para classes.
-- [ ] `1.5` Testes unitários para `orchestrator.py` com sistemas e procedimentos mockados.
+- [x] `1.1` Implementar `core/base_system.py`: ABC com `login`, `logout`, `is_logged_in`.
+- [x] `1.2` Implementar `core/base_procedure.py`: ABC com `execute`, `validate`.
+- [x] `1.3` Implementar `core/orchestrator.py`: `REGISTRY`, `get_procedure()`, `get_system()`.
+- [x] `1.4` Implementar `systems/__init__.py`: `AVAILABLE_SYSTEMS` mapeando chaves para classes.
+- [x] `1.5` Testes unitários para `orchestrator.py` com sistemas e procedimentos mockados.
 
 **Critério de saída**: `Orchestrator` instancia corretamente qualquer procedimento registrado.
 
@@ -314,11 +314,11 @@ senna/
 **Objetivo**: cobertura completa, zero regressões.
 
 - [ ] `6.1` Implementar cenários E2E em `tests/e2e/scenarios/` para os fluxos críticos.
-- [ ] `6.2` Cobertura de testes ≥ 80% medida via `pytest --cov`.
+- [ ] `6.2` Cobertura de testes ≥ 100% medida via `pytest --cov`.
 - [ ] `6.3` Pipeline CI local: `ruff check . && pytest` como hook de pre-commit.
 - [ ] `6.4` Revisão e atualização da documentação em `docs/`.
 
-**Critério de saída**: cobertura ≥ 80%; zero erros Ruff; todos os testes E2E verdes.
+**Critério de saída**: cobertura ≥ 100%; zero erros Ruff; todos os testes E2E verdes.
 
 ---
 

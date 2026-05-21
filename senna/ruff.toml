@@ -32,8 +32,6 @@ line-length = 100
 select = ["E", "F", "I", "ANN"]
 
 ignore = [
-    "ANN101",  # `self` não precisa de anotação
-    "ANN102",  # `cls` não precisa de anotação
     "ANN401",  # permite `Any` quando estritamente necessário (ex: Result[T, E])
 ]
 

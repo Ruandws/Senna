@@ -1,1 +1,25 @@
-# exclui logs/, data/output/, data/temp/, .env, __pycache__
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Cobertura e cache de testes
+.coverage
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+
+# Dados e logs (nunca versionados — R5)
+data/output/
+data/temp/
+logs/
+
+# Credenciais (nunca versionadas — RNF-07)
+.env
+
+# IDE
+.vscode/
+.idea/
