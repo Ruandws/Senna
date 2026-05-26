@@ -1,13 +1,14 @@
 """Testes unitários para senna.interface.forms.
 
-O QUÊ: Valida o comportamento de definição de campos, validação de formulários e construção de payloads.
-PARA QUÊ: Garantir que a UI receba erros corretos de validação inline e construa payloads válidos antes de disparar execuções.
-COMO: Testes unitários puros cobrindo todos os caminhos felizes e de erro (obrigatoriedade, formatos, exceções).
+O QUÊ: Valida o comportamento de definição de campos e formulários.
+PARA QUÊ: Garantir validação e payloads válidos antes da execução.
+COMO: Testes unitários puros cobrindo caminhos felizes e de erro.
 """
 
 from __future__ import annotations
 
 from datetime import date
+
 import pytest
 
 from senna.core.models import AccessPayload
@@ -106,6 +107,29 @@ def test_validate_form_date_formats() -> None:
         {"registration": "12345", "expiration_date": "invalid-date"},
     )
     assert errors.get("expiration_date") == "Formato de data inválido. Use DD/MM/YYYY."
+
+
+def test_validate_form_invalid_cpf() -> None:
+    """Validação deve retornar erro para CPF com menos (ou mais) de 11 dígitos numéricos."""
+    errors = validate_form("search_user_by_cpf", {"cpf": "123.456.789"})
+    assert errors.get("cpf") == "CPF inválido: informe 11 dígitos numéricos."
+
+    errors = validate_form("search_user_by_cpf", {"cpf": "123"})
+    assert errors.get("cpf") == "CPF inválido: informe 11 dígitos numéricos."
+
+
+def test_validate_form_valid_payload() -> None:
+    """Validação deve retornar dicionário vazio para um payload completamente válido."""
+    # Para search_user_by_cpf
+    errors = validate_form("search_user_by_cpf", {"cpf": "123.456.789-00"})
+    assert errors == {}
+
+    # Para extend_access
+    errors = validate_form(
+        "extend_access",
+        {"registration": "12345", "expiration_date": "31/12/2026"},
+    )
+    assert errors == {}
 
 
 def test_validate_form_optional_and_formats_dynamic(monkeypatch: pytest.MonkeyPatch) -> None:

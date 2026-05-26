@@ -94,6 +94,12 @@ def validate_form(procedure_id: str, raw_values: dict[str, str]) -> dict[str, st
         elif field.field_type == "select":
             if field.options is not None and stripped_value not in field.options:
                 errors[field.name] = "Opção inválida."
+                
+        # 3. Validação específica por nome de campo
+        if field.name == "cpf":
+            cpf_digits = re.sub(r"\D", "", stripped_value)
+            if len(cpf_digits) != 11:
+                errors[field.name] = "CPF inválido: informe 11 dígitos numéricos."
 
     return errors
 
