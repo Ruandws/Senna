@@ -1,0 +1,339 @@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th></th>
+            <th class="hidden-sm hidden-xs"></th>
+            <th class="hidden-xs">Empresa</th>
+            <th class="">Nome</th>
+            <th class="">Login</th>
+            <th class="hidden-sm hidden-xs">Cargo</th>
+            <th class="hidden-sm hidden-xs">Vínculo</th>
+            <th class="hidden-sm hidden-xs">Último acesso</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há 3347 dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope text-danger">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/marianeri.huwc">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding"></td>
+            <td class="ng-binding">MARIA CELIA DE SENA NERI</td>
+            <td class="ng-binding">marianeri.huwc</td>
+            <td class="hidden-sm hidden-xs ng-binding"></td>
+            <td class="ng-binding">Colaborador</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding">22/03/2017 09:38:58 (9 anos atrás)</span>
+                <span ng-hide="usuario.dataUltimoLogon" class="ng-hide">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há 1751 dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope text-danger">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/maria.cineria">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding">EBSERH</td>
+            <td class="ng-binding">Maria Cineria dos Santos Viana</td>
+            <td class="ng-binding">maria.cineria</td>
+            <td class="hidden-sm hidden-xs ng-binding">Técnico em Enfermagem (pss)</td>
+            <td class="ng-binding">Empregado</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding">03/08/2021 18:26:27 (5 anos atrás)</span>
+                <span ng-hide="usuario.dataUltimoLogon" class="ng-hide">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há 3 dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/mariaalencar.huwc">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding"></td>
+            <td class="ng-binding">MARIA DA CONCEICAO REBOUCAS NERI DE ALENCAR</td>
+            <td class="ng-binding">mariaalencar.huwc</td>
+            <td class="hidden-sm hidden-xs ng-binding"></td>
+            <td class="ng-binding">Colaborador</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding">18/05/2026 08:26:16 (3 dias atrás)</span>
+                <span ng-hide="usuario.dataUltimoLogon" class="ng-hide">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há NaN dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/maria.alencar.4">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding">CH-UFC</td>
+            <td class="ng-binding">Maria da Conceicao Reboucas Neri de Alencar</td>
+            <td class="ng-binding">maria.alencar.4</td>
+            <td class="hidden-sm hidden-xs ng-binding">Técnico em Enfermagem (rju)</td>
+            <td class="ng-binding">RJU</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding ng-hide"> (Invalid date)</span>
+                <span ng-hide="usuario.dataUltimoLogon">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há 2445 dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope text-danger">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/goes.maria">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding"></td>
+            <td class="ng-binding">Maria de Fátima Neri Goés</td>
+            <td class="ng-binding">goes.maria</td>
+            <td class="hidden-sm hidden-xs ng-binding">Médico</td>
+            <td class="ng-binding">Colaborador</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding">10/09/2019 08:55:16 (7 anos atrás)</span>
+                <span ng-hide="usuario.dataUltimoLogon" class="ng-hide">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há 356 dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope text-danger">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/neri.maria">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding">MEJC-UFRN</td>
+            <td class="ng-binding">Maria dos Santos Gomes Neri</td>
+            <td class="ng-binding">neri.maria</td>
+            <td class="hidden-sm hidden-xs ng-binding">Auxiliar de Enfermagem (rju)</td>
+            <td class="ng-binding">RJU</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding">30/05/2025 12:56:44 (um ano atrás)</span>
+                <span ng-hide="usuario.dataUltimoLogon" class="ng-hide">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há 3 dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/Maria.Neri">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding">EBSERH</td>
+            <td class="ng-binding">Maria Fabiana De Sena Neri</td>
+            <td class="ng-binding">Maria.Neri</td>
+            <td class="hidden-sm hidden-xs ng-binding">Enfermeiro</td>
+            <td class="ng-binding">Empregado</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding">18/05/2026 06:54:50 (3 dias atrás)</span>
+                <span ng-hide="usuario.dataUltimoLogon" class="ng-hide">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há NaN dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/maria-neri.mn">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding">UFRN</td>
+            <td class="ng-binding">Maria Gabriela Ferreira Teixeira Neri</td>
+            <td class="ng-binding">maria-neri.mn</td>
+            <td class="hidden-sm hidden-xs ng-binding">Estudante</td>
+            <td class="ng-binding">Graduando</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding ng-hide"> (Invalid date)</span>
+                <span ng-hide="usuario.dataUltimoLogon">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há 100 dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope text-danger">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/maria.neri.1">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding">EBSERH</td>
+            <td class="ng-binding">Maria Patrícia Lopes dos Santos Neri</td>
+            <td class="ng-binding">maria.neri.1</td>
+            <td class="hidden-sm hidden-xs ng-binding">Assistente Administrativo</td>
+            <td class="ng-binding">Empregado</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding">10/02/2026 07:25:21 (3 meses atrás)</span>
+                <span ng-hide="usuario.dataUltimoLogon" class="ng-hide">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há 963 dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope text-danger">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/maria.neris">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding">Ufpr</td>
+            <td class="ng-binding">Maria Schreiber Neris Oliveira</td>
+            <td class="ng-binding">maria.neris</td>
+            <td class="hidden-sm hidden-xs ng-binding">Aux. de Laboratorio</td>
+            <td class="ng-binding">Colaborador</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding">30/09/2023 19:14:37 (3 anos atrás)</span>
+                <span ng-hide="usuario.dataUltimoLogon" class="ng-hide">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há NaN dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/maria.rosa.2">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding">UFU</td>
+            <td class="ng-binding">Maria Tereza Neri Rosa</td>
+            <td class="ng-binding">maria.rosa.2</td>
+            <td class="hidden-sm hidden-xs ng-binding">Professor</td>
+            <td class="ng-binding">Docente</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding ng-hide"> (Invalid date)</span>
+                <span ng-hide="usuario.dataUltimoLogon">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há NaN dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/mariana.neri">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding">HC-UFPE</td>
+            <td class="ng-binding">Mariana de França Neri Nunes</td>
+            <td class="ng-binding">mariana.neri</td>
+            <td class="hidden-sm hidden-xs ng-binding">Residente</td>
+            <td class="ng-binding">Residente</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding ng-hide"> (Invalid date)</span>
+                <span ng-hide="usuario.dataUltimoLogon">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há 455 dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope text-danger">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/mariana.cerqueira">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding">Hucam</td>
+            <td class="ng-binding">Mariana Neri Cerqueira da Conceição</td>
+            <td class="ng-binding">mariana.cerqueira</td>
+            <td class="hidden-sm hidden-xs ng-binding">Estudante</td>
+            <td class="ng-binding">Residente</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding">20/02/2025 10:12:20 (um ano atrás)</span>
+                <span ng-hide="usuario.dataUltimoLogon" class="ng-hide">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+        <tr ng-repeat="usuario in usuarios" title="Último acesso há 22 dias"
+            ng-class="{'text-danger' : tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 60 , 'text-warning': tempoRelativoDias(usuario.dataUltimoLogon) &gt;= 40 &amp;&amp; tempoRelativoDias(usuario.dataUltimoLogon) &lt; 60}"
+            class="ng-scope">
+            <td>
+                <a ui-sref="app.usuario({id: usuario.login})" class="btn btn-default"
+                    title="Visualizar dados do usuario" href="#/usuarios/mariana.nunes">
+                    <i class="fa fa-address-card-o"></i>
+                </a>
+            </td>
+            <td class="hidden-sm hidden-xs">
+                <img src="images/flat-avatar.png" ng-hide="usuario.foto" class="img-icon">
+                <img ng-src="" ng-show="usuario.foto" class="img-icon ng-hide">
+            </td>
+            <td class="hidden-xs ng-binding">CHC-UFPR</td>
+            <td class="ng-binding">Mariana Neri da Veiga Goncalves Nunes</td>
+            <td class="ng-binding">mariana.nunes</td>
+            <td class="hidden-sm hidden-xs ng-binding">Auxiliar de Enfermagem (rju)</td>
+            <td class="ng-binding">RJU</td>
+            <td class="hidden-sm hidden-xs">
+                <span ng-show="usuario.dataUltimoLogon" class="ng-binding">29/04/2026 09:31:14 (22 dias atrás)</span>
+                <span ng-hide="usuario.dataUltimoLogon" class="ng-hide">-</span>
+            </td>
+        </tr><!-- end ngRepeat: usuario in usuarios -->
+    </tbody>
+</table>

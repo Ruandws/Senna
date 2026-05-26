@@ -38,7 +38,7 @@ Para toda tarefa:
 6. Executar testes aplicáveis
 7. Validar conformidade final
 8. Preparar documentação procedural
-9. Preparar commit
+9. Preparar git add e commit (conforme Regras de Git e Commit)
 
 Se qualquer validação falhar:
 

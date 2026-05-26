@@ -244,12 +244,13 @@ senna/
 - [ ] `2.2` Implementar `systems/servicos_ti/locators/login_locators.py` e `user_locators.py`.
 - [ ] `2.3` Implementar `systems/servicos_ti/pages/login_page.py` e `user_page.py`.
 - [ ] `2.4` Implementar `systems/servicos_ti/client.py`: `login`, `logout`, `is_logged_in`.
-- [ ] `2.5` Implementar procedimento `add_user.py` com `validate` + `execute`.
-- [ ] `2.6` Implementar procedimento `remove_user.py`.
-- [ ] `2.7` Implementar procedimento `extend_access.py`.
-- [ ] `2.8` Implementar procedimento `grant_profile.py`.
-- [ ] `2.9` Testes unitários de procedures com Page mockado.
-- [ ] `2.10` Testes de integração contra ambiente staging do sistema.
+- [ ] `2.5` Implementar procedimento `search_user_by_cpf.py` com `validate` + `execute`.
+- [ ] `2.6` Implementar procedimento `add_user.py` com `validate` + `execute`.
+- [ ] `2.7` Implementar procedimento `remove_user.py`.
+- [ ] `2.8` Implementar procedimento `extend_access.py`.
+- [ ] `2.9` Implementar procedimento `grant_profile.py`.
+- [ ] `2.10` Testes unitários de procedures com Page mockado.
+- [ ] `2.11` Testes de integração contra ambiente staging do sistema.
 
 **Critério de saída**: os 4 procedimentos executam com sucesso em staging; logs de auditoria gerados corretamente.
 

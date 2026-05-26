@@ -35,14 +35,10 @@ ignore = [
     "ANN401",  # permite `Any` quando estritamente necessário (ex: Result[T, E])
 ]
 
-# Garante que imports de __future__ venham antes de qualquer outro
 [lint.isort]
 force-sort-within-sections = true
 known-first-party = ["senna"]
 
-# ---------------------------------------------------------------------------
-# Formatter (substitui Black)
-# ---------------------------------------------------------------------------
 [format]
 quote-style = "double"
 indent-style = "space"

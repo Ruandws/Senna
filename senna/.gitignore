@@ -23,3 +23,7 @@ logs/
 # IDE
 .vscode/
 .idea/
+
+# Suporte e Recursos Locais
+seletores.txt
+Estrutura da tabela.md

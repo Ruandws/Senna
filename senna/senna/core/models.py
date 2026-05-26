@@ -134,3 +134,8 @@ class ExecutionRecord:
     procedure_id: str
     success: bool
     message: str
+
+@dataclass(frozen=True)
+class UserSearchResult:
+    nome: str
+    login: str
