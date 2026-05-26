@@ -97,6 +97,22 @@ def test_resolve_login_from_cpf_error(mock_user_page_class: MagicMock, mock_ctx:
     assert "[search_user_by_cpf] Timeout" in result.error
 
 
+@patch("senna.systems.servicos_ti.procedures.extend_access.UserPage")
+def test_resolve_login_from_cpf_unexpected_exception(
+    mock_user_page_class: MagicMock, mock_ctx: MagicMock
+) -> None:
+    mock_user_page = mock_user_page_class.return_value
+    mock_user_page.search_by_cpf.side_effect = RuntimeError("Falha inesperada")
+
+    result = _resolve_login_from_cpf("12345678901", mock_ctx)
+
+    assert result.success is False
+    assert "Erro ao resolver login a partir do CPF" in result.error
+    assert "Falha inesperada" in result.error
+    page = mock_ctx.new_page.return_value
+    page.close.assert_called_once()
+
+
 # --- Testes de propriedades e validate ---
 
 def test_procedure_id(procedure: ExtendAccessProcedure) -> None:
