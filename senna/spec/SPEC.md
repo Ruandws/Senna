@@ -256,12 +256,12 @@ senna/
 ### Fase 3 — Interface Gráfica (Sprint 5)
 **Objetivo**: UI funcional conectada ao Orchestrator.
 
-- [ ] `3.1` Implementar `interface/forms.py`: definição declarativa de campos por procedimento.
+- [x] `3.1` Implementar `interface/forms.py`: definição declarativa de campos por procedimento.
 - [ ] `3.2` Implementar `interface/ui_main.py`: tela inicial, seleção de sistema, formulário dinâmico, área de resultado.
 - [ ] `3.3` Conectar UI → `Orchestrator` → `Result` → exibição.
 - [ ] `3.4` Indicador de progresso durante execução (thread separada para não travar a UI).
 - [ ] `3.5` Exibição inline de erros de validação de formulário.
-- [ ] `3.6` Testes unitários de lógica de formulários (validação de campos).
+- [x] `3.6` Testes unitários de lógica de formulários (validação de campos).
 
 **Critério de saída**: técnico consegue executar procedimentos no sistema piloto pela UI sem erros visuais.
 
