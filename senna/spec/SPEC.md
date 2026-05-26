@@ -1,5 +1,6 @@
-# SPEC.MD — Especificação de Requisitos: Senna
+# SPEC.md — Especificação de Requisitos: Senna
 > Fonte da verdade do projeto. Toda decisão de arquitetura, escopo e implementação deve ser validada contra este documento.
+> Critérios de qualidade, code style e boundaries estão em `quality-gates.md`.
 
 ---
 
@@ -81,21 +82,7 @@ Procedimentos disponíveis (aplicam-se a todos os sistemas que os suportem; disp
 
 ---
 
-## 5. Requisitos Não Funcionais
-
-| ID | Requisito | Meta |
-|----|----------|------|
-| RNF-01 | Tempo máximo por procedimento | 60 segundos |
-| RNF-02 | Feedback visual durante execução | Indicador de progresso em toda execução |
-| RNF-03 | Tratamento de exceções | Capturadas e registradas sem travar a UI |
-| RNF-04 | Isolamento de sistema | Sem alteração de código fora do subpacote do sistema |
-| RNF-05 | Qualidade de código | Zero erros Ruff; cobertura de testes ≥ 100% |
-| RNF-06 | Compatibilidade | Windows 10+ |
-| RNF-07 | Segurança de credenciais | Apenas em `.env`, nunca em código ou logs |
-
----
-
-## 6. Restrições
+## 5. Restrições
 
 - **R1**: O Senna **não** substitui controles de acesso dos sistemas-alvo; apenas automatiza ações que o técnico já teria permissão de realizar manualmente.
 - **R2**: O Playwright opera em modo **headless** por padrão; modo visível disponível via `DEBUG_BROWSER=true`.
@@ -105,9 +92,9 @@ Procedimentos disponíveis (aplicam-se a todos os sistemas que os suportem; disp
 
 ---
 
-## 7. Arquitetura
+## 6. Arquitetura
 
-### 7.1 Camadas
+### 6.1 Camadas
 
 ```
 ┌──────────────────────────────────────┐
@@ -123,7 +110,7 @@ Procedimentos disponíveis (aplicam-se a todos os sistemas que os suportem; disp
 └──────────────────────────────────────┘
 ```
 
-### 7.2 Fluxo de Execução
+### 6.2 Fluxo de Execução
 
 ```
 Técnico seleciona sistema + procedimento
@@ -156,17 +143,17 @@ audit_logger.write(entrada_json)
 UI exibe resultado ao técnico
 ```
 
-### 7.3 Padrão Result
+### 6.3 Padrão Result
 
 Toda operação retorna `Result[T, E]` — nunca lança exceção para a camada de UI. A UI lê `result.success` para decidir o que exibir.
 
-### 7.4 Padrão Page Object
+### 6.4 Padrão Page Object
 
 Cada sistema possui `pages/` com classes que encapsulam ações de tela e `locators/` com seletores isolados. Procedimentos **nunca** contêm seletores diretamente.
 
 ---
 
-## 8. Estrutura de Diretórios
+## 7. Estrutura de Diretórios
 
 ```
 senna/
@@ -199,28 +186,26 @@ senna/
 ├── tests/
 │   ├── unit/          # sem rede, sem browser — lógica pura
 │   ├── integration/   # Playwright contra staging
-│   └── e2e/           # fluxo completo
-├── data/
-│   ├── input/         # planilhas fornecidas pelo técnico
-│   ├── output/        # relatórios gerados (gitignored)
-│   └── temp/          # intermediários (gitignored)
-├── agents/            # prompts de IA versionados
+│   ├── e2e/
+│   │   └── scenarios/ # fluxos críticos ponta a ponta
+│   └── testdata/      # fixtures e planilhas de teste
 ├── docs/
-│   ├── architecture/  # ADRs
-│   └── procedures/    # guias de uso para o técnico
-├── logs/audit/        # JSON imutável de auditoria (gitignored)
-├── .env.example       # Template de variáveis de ambiente
-├── .gitignore         # Arquivos ignorados pelo repositório
-├── pyproject.toml     # Configuração do projeto e dependências
-├── README.md          # Visão geral e instruções iniciais
-├── requirements.md    # Justificativas das dependências
-├── ruff.toml          # Configurações do linter Ruff
-└── SPEC.md            # Especificação de requisitos (Fonte da verdade)
+│   └── procedures/    # documentação gerada pós-execução
+├── data/
+│   └── output/        # relatórios de lote (gitignored)
+├── logs/              # arquivos de log (gitignored)
+├── .env               # credenciais (gitignored)
+├── .gitignore
+├── pyproject.toml
+├── README.md
+├── requirements.md
+├── ruff.toml
+└── SPEC.md
 ```
 
 ---
 
-## 9. Plano de Desenvolvimento
+## 8. Plano de Desenvolvimento
 
 ### Fase 0 — Fundação (Sprint 1)
 **Objetivo**: infraestrutura funcionando, zero lógica de negócio.
@@ -322,49 +307,9 @@ senna/
 
 ---
 
-## 10. Definição de Pronto
+## 9. Workflow Git
 
-Uma funcionalidade está **pronta** quando:
-
-1. Código implementado e passando em `ruff check .` sem erros.
-2. Testes unitários escritos e verdes.
-3. Testes de integração escritos e verdes (quando aplicável).
-4. Log de auditoria gerado corretamente para o caminho feliz e para falhas.
-5. `Result[T, E]` retornado corretamente — sem exceções não tratadas chegando à UI.
-6. Código commitado com mensagem semântica (`feat:`, `fix:`, `test:`, `refactor:`).
-
----
-
-## 11. Riscos e Mitigações
-
-| Risco | Probabilidade | Impacto | Mitigação |
-|-------|-------------|---------|-----------|
-| Seletores dos sistemas mudam sem aviso | Alta | Alto | Seletores isolados em `locators/`; fácil atualizar sem tocar em procedures |
-| Sistema-alvo fora do ar durante execução | Média | Médio | `SystemUnavailableError` capturado; resultado de falha exibido sem travar a UI |
-| Credenciais expiradas | Média | Alto | Verificação de `is_logged_in` antes de cada procedimento; alerta ao técnico |
-| Planilha com dados inválidos | Alta | Baixo | `DataLoader` valida schema antes de iniciar o lote |
-| Mudança de layout dos sistemas | Média | Alto | Page Object Pattern isola impacto; apenas `pages/` e `locators/` precisam ser atualizados |
-
----
-
-## 12. Glossário
-
-| Termo | Definição |
-|-------|----------|
-| **Procedimento** | Unidade atômica de automação (ex: `add_user`) implementada como classe que herda `BaseProcedure` |
-| **Sistema** | Um dos 5 portais web gerenciados pelo Senna, representado por um subpacote em `senna/systems/` |
-| **Payload** | Conjunto de dados necessários para executar um procedimento (dataclass tipada) |
-| **BrowserContext** | Sessão isolada do Playwright — equivalente a um perfil de navegador separado por sistema |
-| **Result[T, E]** | Tipo que encapsula sucesso ou falha sem lançar exceção — garante que a UI nunca quebre por erro de automação |
-| **Page Object** | Classe que encapsula as ações de uma tela específica do sistema, separando lógica de navegação dos seletores |
-| **Lote** | Execução sequencial de múltiplos registros importados de uma planilha CSV/XLSX |
-| **Audit Log** | Registro JSON imutável gerado a cada execução, contendo quem fez, o quê, quando e qual foi o resultado |
-
----
-
-## 13. Workflow Git
-
-### 13.1 Fluxo Obrigatório
+### 9.1 Fluxo Obrigatório
 
 Todo desenvolvimento deve seguir **estritamente** esta ordem:
 
@@ -374,11 +319,11 @@ Codificar → Testes unitários → Testes de integração → Ruff → Commit
 
 Se qualquer etapa falhar: corrigir e repetir o ciclo. Commit é proibido antes de tudo passar.
 
-### 13.2 Regra de Commit
+### 9.2 Regra de Commit
 
 Um commit só é permitido quando todos os testes unitários e de integração passam e Ruff não retorna erros.
 
-### 13.3 Convenção de Commits
+### 9.3 Convenção de Commits
 
 Formato obrigatório: `<tipo>: <descrição curta>`
 
@@ -400,80 +345,37 @@ refactor: extract BrowserFactory from client
 
 Commits vagos (`fix stuff`, `update`, `changes`) são proibidos.
 
-### 13.4 Frequência
+### 9.4 Frequência
 
 Um commit deve representar **uma única mudança lógica**. Pequenos, frequentes e coerentes.
 
-### 13.5 Hook de Verificação
+### 9.5 Hook de Verificação
 
 Configurar pre-commit hook executando `ruff check . && pytest`. Commit bloqueado automaticamente em caso de falha.
 
 ---
 
-## 14. Code Style
+## 10. Riscos e Mitigações
 
-### 14.1 Tipagem Forte
-
-Todo código Python deve usar type hints explícitos em parâmetros, retornos, atributos de classe e dataclasses. Retorno `None` também deve ser declarado.
-
-```python
-# Obrigatório
-def add_user(payload: UserPayload) -> Result[User, Error]: ...
-
-# Proibido
-def add_user(payload): ...
-```
-
-Payloads devem ser modelados como dataclasses tipadas. Dicionários soltos são proibidos para dados críticos de execução.
-
-```python
-@dataclass
-class UserPayload:
-    name: str
-    email: str
-    profile: str
-```
-
-### 14.2 Nomenclatura Grepável
-
-Nomes devem ser significativos, únicos e fáceis de localizar por busca.
-
-| Padrão | Exemplos ✅ | Exemplos 🚫 |
-|--------|-----------|------------|
-| Variáveis | `user_payload`, `login_response` | `data`, `obj`, `tmp`, `value` |
-| Classes | `UserPage`, `AddUserProcedure`, `BrowserFactory` | `Manager`, `Handler`, `Processor` |
-| Funções | `create_user`, `validate_payload`, `open_browser_context` | `do_it`, `handle`, `process` |
-
-### 14.3 Simplicidade Estrutural
-
-Prefira guard clauses, early return e funções pequenas e coesas. Evite funções gigantes, condições complexas e aninhamento profundo.
+| Risco | Probabilidade | Impacto | Mitigação |
+|-------|-------------|---------|-----------|
+| Seletores dos sistemas mudam sem aviso | Alta | Alto | Seletores isolados em `locators/`; fácil atualizar sem tocar em procedures |
+| Sistema-alvo fora do ar durante execução | Média | Médio | `SystemUnavailableError` capturado; resultado de falha exibido sem travar a UI |
+| Credenciais expiradas | Média | Alto | Verificação de `is_logged_in` antes de cada procedimento; alerta ao técnico |
+| Planilha com dados inválidos | Alta | Baixo | `DataLoader` valida schema antes de iniciar o lote |
+| Mudança de layout dos sistemas | Média | Alto | Page Object Pattern isola impacto; apenas `pages/` e `locators/` precisam ser atualizados |
 
 ---
 
-## 15. Boundaries
+## 11. Glossário
 
-### ✅ Sempre
-- Registrar auditoria por execução, inclusive em falhas.
-- Tratar erros sem deixar exceções não tratadas chegarem à UI.
-- Preservar isolamento por sistema e por `BrowserContext`.
-- Corrigir falhas antes de prosseguir para a próxima tarefa.
-
-### ⚠️ Perguntar antes
-- Alterar arquitetura base.
-- Adicionar novo sistema fora do padrão previsto.
-- Mudar o contrato de `Result[T, E]`.
-- Mudar o formato do audit log.
-- Alterar estratégia de execução em lote.
-- Introduzir paralelismo.
-- Alterar o fluxo de login ou logout.
-- Criar exceção para um comportamento não previsto.
-- Mudar o padrão de naming do projeto.
-- Relaxar regra de tipagem ou lint.
-
-### 🚫 Nunca
-- Expor credenciais em logs, UI ou código.
-- Gravar segredo em arquivo versionado.
-- Usar dicionários soltos onde houver contrato tipado.
-- Criar nomes genéricos (`data`, `tmp`, `obj`, `handle`, `manager`).
-- Deixar exceção não tratada chegar à interface.
-- Alterar comportamento sem atualizar os testes correspondentes.
+| Termo | Definição |
+|-------|----------|
+| **Procedimento** | Unidade atômica de automação (ex: `add_user`) implementada como classe que herda `BaseProcedure` |
+| **Sistema** | Um dos 5 portais web gerenciados pelo Senna, representado por um subpacote em `senna/systems/` |
+| **Payload** | Conjunto de dados necessários para executar um procedimento (dataclass tipada) |
+| **BrowserContext** | Sessão isolada do Playwright — equivalente a um perfil de navegador separado por sistema |
+| **Result[T, E]** | Tipo que encapsula sucesso ou falha sem lançar exceção — garante que a UI nunca quebre por erro de automação |
+| **Page Object** | Classe que encapsula as ações de uma tela específica do sistema, separando lógica de navegação dos seletores |
+| **Lote** | Execução sequencial de múltiplos registros importados de uma planilha CSV/XLSX |
+| **Audit Log** | Registro JSON imutável gerado a cada execução, contendo quem fez, o quê, quando e qual foi o resultado |
